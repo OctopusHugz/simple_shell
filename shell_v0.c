@@ -41,8 +41,6 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		args[i] = NULL;
 
-		/* pid = getpid(); */
-
 		child_pid = fork();
 
 		num_proc++;
