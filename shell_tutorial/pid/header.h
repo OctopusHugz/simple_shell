@@ -10,8 +10,15 @@
 #include <unistd.h>
 
 /* Typedefs go here */
+typedef struct list_s {
+	char *dir;
+	struct list_s *next;
+} dir_t;
 
 /* Prototypes go here */
 char *_getenv(char *name);
+dir_t *make_path_list(char *path);
+dir_t *add_dir(dir_t **head, const char *dir);
+
 
 #endif
