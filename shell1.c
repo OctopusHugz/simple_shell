@@ -73,7 +73,6 @@ int main(int argc, char *argv[], char *envp[])
 					strcpy(dir, path);
 					strcat(dir, command);
 					dirs[l] = strdup(dir);
-
 					free(dir);
 					l++;
 				}
@@ -101,6 +100,9 @@ int main(int argc, char *argv[], char *envp[])
 			{
 				perror("./hsh");
 				free(buf);
+				free_grid(dirs, l);
+				free(command);
+				free(*args);
 				_exit(EXIT_FAILURE);
 			}
 		}
