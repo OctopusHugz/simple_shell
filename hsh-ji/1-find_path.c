@@ -20,6 +20,7 @@ char *find_right_path(dir_t *head, char *command)
 		path = strcat(dup, command);
 		if (stat(path, &st) == 0)
 			return (path);
+		free(dup);
 	}
 	return (NULL);
 }

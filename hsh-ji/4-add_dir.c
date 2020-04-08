@@ -34,5 +34,6 @@ dir_t *add_dir(dir_t **head, const char *dir)
 			;
 		tmp1->next = new;
 	}
+	/*free(new);*/
 	return (*head);
 }

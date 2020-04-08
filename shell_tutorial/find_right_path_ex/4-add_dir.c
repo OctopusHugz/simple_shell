@@ -5,10 +5,10 @@
  * @head: pointer to (head of) linked list
  * @dir: new node to add to end of linked list
  *
- * Return: address of new element, or NULL if malloc fails
+ * Return: address of head | NULL if malloc fails
  */
 
-dir_t*add_dir(dir_t **head, const char *dir)
+dir_t *add_dir(dir_t **head, const char *dir)
 {
 	dir_t *new = malloc(sizeof(dir_t));
 	dir_t *tmp1;
@@ -20,7 +20,8 @@ dir_t*add_dir(dir_t **head, const char *dir)
 
 	if (dir)
 		new->dir = strdup(dir);
-	new->next = NULL;				/*1c*/
+	
+	new->next = NULL;
 
 	if (*head == NULL)
 	{
@@ -33,5 +34,6 @@ dir_t*add_dir(dir_t **head, const char *dir)
 			;
 		tmp1->next = new;
 	}
-	return (new);
+	free(new);
+	return (*head);
 }

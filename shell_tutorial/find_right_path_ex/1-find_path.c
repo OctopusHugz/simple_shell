@@ -8,19 +8,19 @@
 char *find_right_path(dir_t *head, char *command)
 {
 	struct stat st;
-	char *path;
+	char *path, *dup;
 
-	if (command == NULL)
+	if (head == NULL || command == NULL)
 		return (NULL);
-
 
 	for (; head; head = head->next)
 	{
-		path = strcat(head->dir, command);
-		printf("\tpath = %s\n", path);
+		dup = strdup(head->dir);
+		dup = realloc(dup, sizeof(char) * (strlen(dup) + strlen(command)) + 1);
+		path = strcat(dup, command);
+		free(dup);
 		if (stat(path, &st) == 0)
 			return (path);
 	}
-
 	return (NULL);
 }

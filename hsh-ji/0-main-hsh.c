@@ -54,7 +54,6 @@ int main(int argc, char *argv[], char *envp[]__attribute__((unused)))
 		if (child_pid == -1)
 		{
 			perror("fork");
-			/* Elucidate me on what's going on here */
 			exit(EXIT_FAILURE);
 		}
 		/* If fork() = 0, you're the child! Head to execve... */
@@ -62,13 +61,13 @@ int main(int argc, char *argv[], char *envp[]__attribute__((unused)))
 		{
 						/* EXECUTE COMMAND */
 									/* Check inputs to exec */
-			/* for (i = 1; args[i]; i++)
-				printf("argument %d = %s\n", i, args[i]);
+			 /*for (i = 1; args[i]; i++)
+				printf("\targument %d = %s\n", i, args[i]);
 			for (i = 0; envp[i]; i++)
-				printf("\t\t\t%s\n", envp[i]);*/
+				printf("\t%s\n", envp[i]);*/
 			if (execve(args[0], args, environ) == -1)
 			{
-				perror("./hsh");
+				perror("couldn't execute");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -80,6 +79,7 @@ int main(int argc, char *argv[], char *envp[]__attribute__((unused)))
 		}
 	}
 	free(buf);
+	free_list(head);
 	if (isatty(STDIN_FILENO) == 1)
 		putchar('\n');
 	/* exit(status); */
