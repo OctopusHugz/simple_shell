@@ -11,7 +11,7 @@ void free_grid(char **grid, int height);
 
 int main(int argc, char *argv[], char *envp[])
 {
-	char *buf = NULL, *token, *args[1024], *dirs[1024], *path, *command, *dir, *token_ptr;
+	char *buf = NULL, *token, *args[1024], *dirs[1024], *path, *command, *dir;
 	size_t len = 0;
 	ssize_t characters = 0;
 	int i = 0, j = 0, k = 0, l = 0, /* m = 0,  */ status = 0;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[], char *envp[])
 		buf[j] = '\0';
 		i = 0;
 		token = strtok(buf, " ");
-		args[i] = token;
+		args[i] = strdup(token);
 		i++;
 		while (token)
 		{
@@ -49,16 +49,11 @@ int main(int argc, char *argv[], char *envp[])
 			i++;
 		}
 		args[i] = NULL;
-
-		token_ptr = strdup(args[0]);
+		command = strdup(args[0]);
 
 		/* DO SOMETHING IF ARGS[0] == \n */
 
-		printf("token_ptr is: %s\n", token_ptr);
-		command = strdup(token_ptr);
 		command = rev_string(command);
-		free(token_ptr);
-		token_ptr = NULL;
 		strtok(command, "/");
 		strcat(command, "/");
 		rev_string(command);
@@ -78,6 +73,7 @@ int main(int argc, char *argv[], char *envp[])
 					strcpy(dir, path);
 					strcat(dir, command);
 					dirs[l] = strdup(dir);
+
 					free(dir);
 					l++;
 				}
@@ -113,12 +109,14 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
+		free(command);
+		command = NULL;
+		free(*args);
+		*args = NULL;
 	}
 	free(buf);
 	free_grid(dirs, l);
-	/* free_grid(args, i); */
 	free(command);
-	free(token_ptr);
 	if (isatty(STDIN_FILENO) == 1)
 		putchar('\n');
 	return (0);
