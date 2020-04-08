@@ -83,6 +83,10 @@ int main(int argc, char *argv[], char *envp[])
 
 		printf("----------------------------\n");
 
+		/* if ((stat(dirs[l], &st) == 0) */
+
+		printf("----------------------------\n");
+
 		child_pid = fork();
 		if (child_pid == -1)
 		{
@@ -90,11 +94,12 @@ int main(int argc, char *argv[], char *envp[])
 			free(buf);
 			free_grid(dirs, l);
 			free(command);
+			free(*args);
 			_exit(EXIT_FAILURE);
 		}
 		if (child_pid == 0)
 		{
-			if (args[0] == NULL || args[0][0] == 10)
+			if (args[0] == NULL /*  || args[0][0] == 10 */)
 				break;
 			if (execve(args[0], args, envp) == -1)
 			{
