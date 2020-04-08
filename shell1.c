@@ -28,12 +28,11 @@ int main(int argc, char *argv[], char *envp[])
 		if (isatty(STDIN_FILENO) == 1)
 			printf("$ ");
 		characters = getline(&buf, &len, stdin);
-
-		printf("buf[0] is: %d\n", buf[0]);
-		printf("characters is: %d\n", (int)characters);
-
 		if (characters == -1)
 			break;
+		/* Add if buf is empty string */
+		if (buf[0] == '\n' /*  || buf[0] == '' */)
+			continue;
 		j = strlen(buf) - 1;
 		buf[j] = '\0';
 		i = 0;
@@ -121,6 +120,7 @@ int main(int argc, char *argv[], char *envp[])
 		free(*args);
 		*args = NULL;
 	}
+	command = NULL;
 	free(buf);
 	free_grid(dirs, l);
 	free(command);
