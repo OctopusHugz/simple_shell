@@ -55,7 +55,9 @@ int main(int argc, char *argv[], char *envp[])
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
 			continue;
 
-		make_av(&av, buf);	/* Make argv[] for next exec */
+		make_av(&av, buf); /* Make argv[] for next exec */
+		if (strcmp(buf, "exit") == 0)
+			break;
 		child_pid = fork(); /* Fork this shit */
 		if (child_pid == -1)
 		{
@@ -81,11 +83,12 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			if (wait(&status) == -1)
 				perror("Failed to wait");
-			free(*av);
-			*av = NULL;
 		}
+		free(*av);
+		*av = NULL;
 	}
-	free(buf);					   /* Free arguments buffer */
+	free(buf);
+	buf = NULL;					   /* Free arguments buffer */
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
 	return (0);
