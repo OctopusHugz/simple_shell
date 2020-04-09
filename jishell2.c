@@ -51,12 +51,18 @@ int main(int argc, char *argv[], char *envp[])
 			printf("$ ");
 
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
+		{
+			free(buf);
+			buf = NULL;
+			printf("getline -1 has freed buf\n");
 			break;
+		}
 
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
 			continue;
 
 		make_av(&av, buf); /* Make argv[] for next exec */
+		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
 		if (strcmp(buf, "exit") == 0)
 		{
 			if (av[1] != NULL)
@@ -74,6 +80,23 @@ int main(int argc, char *argv[], char *envp[])
 			*av = NULL;
 			continue;
 		}
+
+		/* Need to verify command here before forking to fix free(buf) issues */
+		/* ADD IS_VALID_COMMAND FUNCTION HERE OR MAKE THE make_av() FUNCTION CALL RETURN WHETHER THE COMMAND IS INVALID AND CONTINUE IF SO */
+		if (strcmp(buf, "myguy") == 0)
+		{
+			continue;
+		}
+
+		if (av[0] == NULL)
+		{
+			printf("invalid command\n");
+			free(buf);
+			buf = NULL;
+			free(*av);
+			*av = NULL;
+			continue;
+		}
 		child_pid = fork(); /* Fork this shit */
 		if (child_pid == -1)
 		{
@@ -85,13 +108,26 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		else if (child_pid == 0)
 		{
+			/* IF COMMMAND IS INVALID RESTART LOOP */
+			/* CONTINUE, BREAK, OR EXIT HERE????? */
+			/* if (av[0] == NULL)
+			{
+
+				free(buf);
+				buf = NULL;
+				free(*av);
+				*av = NULL;
+				exit(EXIT_FAILURE);
+			} */
+			/* break; */
 			if (execve(av[0], av, envp) == -1)
 			{
 				perror("execve");
 				free(buf);
 				buf = NULL;
-				free(*av);
-				*av = NULL;
+				printf("child has freed buf\n");
+				/* free(*av);
+				*av = NULL; */
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -103,8 +139,11 @@ int main(int argc, char *argv[], char *envp[])
 		free(*av);
 		*av = NULL;
 	}
-	free(buf);
-	buf = NULL;					   /* Free arguments buffer */
+	/* free(buf);
+	buf = NULL; */
+	/* Free arguments buffer */
+	/* free(*av);
+	*av = NULL; */
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
 	return (0);
@@ -189,6 +228,7 @@ void make_av(char *(*av)[], char *line)
 			(*av)[j] = ptr;
 			if (j == 0)
 				(*av)[j] = find_right_path((*av)[j]);
+			/* (*av)[j] = NULL; */
 		}
 	}
 	(*av)[j] = NULL;
