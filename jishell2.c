@@ -27,6 +27,7 @@ dir_t *make_path_list(char *path);
 dir_t *add_dir(dir_t **head, const char *dir);
 void free_list(dir_t *head);
 void make_av(char *(*av)[], char *line);
+void print_env(char *envp[]);
 #endif
 
 int main(int argc, char *argv[], char *envp[])
@@ -61,7 +62,17 @@ int main(int argc, char *argv[], char *envp[])
 			if (av[1] != NULL)
 				status = atoi(av[1]);
 			free(buf);
+			buf = NULL;
 			exit(status);
+		}
+		if (strcmp(buf, "env") == 0)
+		{
+			print_env(envp);
+			free(buf);
+			buf = NULL;
+			free(*av);
+			*av = NULL;
+			continue;
 		}
 		child_pid = fork(); /* Fork this shit */
 		if (child_pid == -1)
@@ -181,4 +192,14 @@ void make_av(char *(*av)[], char *line)
 		}
 	}
 	(*av)[j] = NULL;
+}
+
+void print_env(char *envp[])
+{
+	int i = 0;
+	while (envp[i])
+	{
+		printf("%s\n", envp[i]);
+		i++;
+	}
 }
