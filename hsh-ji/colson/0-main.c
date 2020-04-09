@@ -13,7 +13,7 @@ int main(int argc, char *argv[], char *envp[])
 		exit(EXIT_FAILURE);
 	}
 
-	args[0] = NULL;
+	args[0] = NULL;					/* I don't know why I have to do this frankly */
 
 	while (1)
 	{
@@ -32,10 +32,11 @@ int main(int argc, char *argv[], char *envp[])
 		args[0] = strtok(buf, " ");			/* CREATE ARGV FOR CHILD EXECVE */
 		for (i = 0; args[i++];)
 			args[i] = strtok(NULL, " ");
-		
+
 		args[0] = find_right_path(args[0]);		/* Add PATH to command */
 
-		if ((child_pid = fork()) == -1)			/* Fork it! */
+		child_pid = fork();					/* Fork this shit */
+		if (child_pid == -1)
 			perror("Fork failure");
 		else if (child_pid == 0)
 		{
