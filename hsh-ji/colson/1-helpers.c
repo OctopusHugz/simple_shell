@@ -35,3 +35,24 @@ char *find_right_path(char *command)
 	free(path);
 	return (command);
 }
+/**
+ * get_env - returns environment info for name
+ * @name: environment variable to search for
+ * Return - env var info in a string of type key=value
+ **/
+char *_getenv(char *name)
+{
+	extern char **environ;
+	size_t size = sizeof(char) * strlen(name) + 1;
+	char *matcher = calloc(size, sizeof(char));
+	int i;
+
+	for (i = 0; environ[i]; i++)
+	{
+		strncpy(matcher, environ[i], size - 1);
+		if (strcmp(matcher, name) == 0)
+			break;
+	}
+	free(matcher);
+	return (environ[i]);
+}
