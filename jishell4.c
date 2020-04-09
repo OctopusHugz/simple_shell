@@ -56,8 +56,8 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			free(buf);
 			buf = NULL;
-			free(*av);
-			*av = NULL;
+			/* free(*av);
+			*av = NULL; */
 			printf("getline -1 has freed buf and av\n");
 			break;
 		}
@@ -67,7 +67,11 @@ int main(int argc, char *argv[], char *envp[])
 
 		av_status = make_av(&av, buf); /* Make argv[] for next exec */
 		if (av_status == 1)
+		{
+			free(buf);
+			buf = NULL;
 			continue;
+		}
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
 		if (strcmp(buf, "exit") == 0)
 		{
@@ -139,9 +143,9 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("Failed to wait");
 		}
-		/* free(*av);
-		*av = NULL; */
-		printf("av has been freed and nulled\n");
+		free(*av);
+		*av = NULL;
+		printf("av has been freed and nulled from end of while loop\n");
 	}
 	/* free(*av);
 	*av = NULL; */
@@ -230,14 +234,15 @@ int make_av(char *(*av)[], char *line)
 			(*av)[j] = ptr;
 			if (j == 0)
 				(*av)[j] = find_right_path((*av)[j]);
-			if ((*av)[j][0] != '/')
-			{
-				k = 1;
-				printf("returning k as: %d from for loop\n", k);
-				return (k);
-			}
 			/* (*av)[j] = NULL; */
 		}
+	}
+	/* This logic below was blocking arguments to /bin/ls when inside of for loop, does movig help????*/
+	if ((*av)[0][0] != '/')
+	{
+		k = 1;
+		printf("returning k as: %d from outside for loop\n", k);
+		return (k);
 	}
 	(*av)[j] = NULL;
 	printf("returning k as: %d from end of program\n", k);
