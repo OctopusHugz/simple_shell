@@ -28,6 +28,11 @@ int main(int argc, char *argv[], char *envp[]__attribute__((unused)))
 		characters = getline(&buf, &len, stdin);
 		if (characters == -1)
 			break;
+		
+		/* Start over if command line is just '\n' */
+		if (buf[0] == '\n' /*  || buf[0] == '' */)
+			continue;
+		
 		/* Change newline character to null byte */
 		j = strlen(buf) - 1;
 		buf[j] = '\0';
