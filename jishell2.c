@@ -57,7 +57,12 @@ int main(int argc, char *argv[], char *envp[])
 
 		make_av(&av, buf); /* Make argv[] for next exec */
 		if (strcmp(buf, "exit") == 0)
-			break;
+		{
+			if (av[1] != NULL)
+				status = atoi(av[1]);
+			free(buf);
+			exit(status);
+		}
 		child_pid = fork(); /* Fork this shit */
 		if (child_pid == -1)
 		{
