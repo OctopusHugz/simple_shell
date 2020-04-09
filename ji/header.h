@@ -16,9 +16,12 @@ typedef struct list_s {
 	struct list_s *next;
 } dir_t;
 
+/* Colson Prototypes go here */
+char *rev_string(char *s);
+void free_grid(char **grid, int height);
 /* Prototypes go here */
 char *_getenv(char *name);
-char *find_right_path(dir_t *head, char *command);
+char *find_right_path(char *command);
 dir_t *make_path_list(char *path);
 dir_t *add_dir(dir_t **head, const char *dir);
 void free_list(dir_t *head);

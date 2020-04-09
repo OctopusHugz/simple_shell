@@ -6,3 +6,6 @@ Things left to do:
   exists in the current directory
 - Learn setenv and unsetenv
 - Learn what setenv will be used for
+
+Notes:
+AUTHORS, new line?
