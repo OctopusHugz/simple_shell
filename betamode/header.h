@@ -25,5 +25,5 @@ char *find_right_path(char *command);
 dir_t *make_path_list(char *path);
 dir_t *add_dir(dir_t **head, const char *dir);
 void free_list(dir_t *head);
-
+void make_av(char *(*av)[], char *line);
 #endif

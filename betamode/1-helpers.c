@@ -56,3 +56,31 @@ char *_getenv(char *name)
 	free(matcher);
 	return (environ[i]);
 }
+/**
+ * make_av - make argument array for an execve from a string
+ * @av: pointer to argument array to be filled
+ * @line: line to be turned into arguments
+ * Return: void
+ **/
+void make_av(char *(*av)[], char *line)
+{
+	int i = 0, j = 0;
+	char *ptr = NULL;
+
+	for (; line[i] != '\0'; i++, j++)
+	{
+		while (line[i] == ' ' || line[i] == '\n')
+			i++;		
+		ptr = line + i;
+		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
+			i++;
+		if (line[i] != '\0')
+		{
+			*(line + i) = '\0';
+			(*av)[j] = ptr;
+			if (j == 0)
+				(*av)[j] = find_right_path((*av)[j]);
+		}
+	}
+	(*av)[j] = NULL;
+}
