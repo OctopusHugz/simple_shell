@@ -26,7 +26,7 @@ char *find_right_path(char *command);
 dir_t *make_path_list(char *path);
 dir_t *add_dir(dir_t **head, const char *dir);
 void free_list(dir_t *head);
-int make_av(char *(*av)[], char *line);
+void make_av(char *av[], char *line);
 void print_env(char *envp[]);
 #endif
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	char *buf = NULL, *av[1024];
 	size_t size = 0;
-	int /* i = 0,  */ status = 0, av_status;
+	int status = 0;
 	pid_t child_pid = 0;
 
 	if (argc != 1) /* Print usage if argc is off */
@@ -44,38 +44,30 @@ int main(int argc, char *argv[], char *envp[])
 		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-
 	av[0] = NULL; /* I don't know why I have to do this frankly */
-
 	while (1)
 	{
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
 			printf("$ ");
-
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
 		{
 			free(buf);
 			buf = NULL;
 			/* free(*av);
 			*av = NULL; */
-			printf("getline -1 has freed buf and av\n");
+			printf("getline -1 has freed buf\n");
 			break;
 		}
-
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
 			continue;
-
-		av_status = make_av(&av, buf); /* Make argv[] for next exec */
-		if (av_status == 1)
-		{
-			free(buf);
-			buf = NULL;
-			continue;
-		}
+		make_av(av, buf); /* Make argv[] for next exec */
+						  /* if (av[0]) */
+		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
+			continue; */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
 		if (strcmp(buf, "exit") == 0)
 		{
-			if (av[1] != NULL)
+			if (av[1])
 				status = atoi(av[1]);
 			free(buf);
 			buf = NULL;
@@ -90,26 +82,7 @@ int main(int argc, char *argv[], char *envp[])
 			*av = NULL;
 			continue;
 		}
-
-		/* Need to verify command here before forking to fix free(buf) issues */
-		/* ADD IS_VALID_COMMAND FUNCTION HERE OR MAKE THE make_av() FUNCTION CALL RETURN WHETHER THE COMMAND IS INVALID AND CONTINUE IF SO */
-		/* if (strcmp(buf, "myguy") == 0)
-		{
-			free(*av);
-			*av = NULL;
-			continue;
-		} */
-
-		/* if (av[0] == NULL)
-		{
-			printf("invalid command\n");
-			free(buf);
-			buf = NULL;
-			free(*av);
-			*av = NULL;
-			continue;
-		} */
-		child_pid = fork(); /* Fork this shit */
+		child_pid = fork(); /* fork if command is valid */
 		if (child_pid == -1)
 		{
 			perror("fork");
@@ -141,14 +114,14 @@ int main(int argc, char *argv[], char *envp[])
 		else
 		{
 			if (wait(&status) == -1)
-				perror("Failed to wait");
+				perror("wait");
 		}
-		free(*av);
+		/* INVALID FREE WHEN NOT USING /BIN/ FIRST!!!!!!?????? */
+		/* printf("*av is: %s\n", *av); */
+		/* free(*av);
 		*av = NULL;
-		printf("av has been freed and nulled from end of while loop\n");
+		printf("av has been freed and nulled from end of while loop\n"); */
 	}
-	/* free(*av);
-	*av = NULL; */
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
 	return (0);
@@ -157,7 +130,7 @@ int main(int argc, char *argv[], char *envp[])
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL;
+	char *path = NULL, *dir = NULL, *ptr = NULL, path_ptr[1024], *pp;
 	size_t size;
 	int i = 0, j = 0;
 
@@ -174,7 +147,7 @@ char *find_right_path(char *command)
 			;
 		if (dir[i] == '\0')
 			break;
-		size = sizeof(char) * (j + strlen(command) + 2);
+		size = (j + strlen(command) + 2);
 		path = realloc(path, size);
 		if (path == NULL)
 			return (NULL);
@@ -183,7 +156,15 @@ char *find_right_path(char *command)
 		path = strcat(strcat(path, "/"), command);
 
 		if (stat(path, &st) == 0)
-			return (path);
+		{
+			memset(path_ptr, 0, strlen(path));
+			memcpy(path_ptr, path, strlen(path));
+			free(path);
+			pp = &path_ptr[0];
+			return (pp);
+		}
+		/* return (path); */
+		/* IS PATH NOT FREED HERE??? IS THAT OUR ISSUE */
 	}
 	free(path);
 	return (command);
@@ -197,10 +178,13 @@ char *_getenv(char *name)
 {
 	extern char **environ;
 	size_t size = sizeof(char) * strlen(name) + 1;
-	/* CHANGE THIS CALLOC BELOW */
-	char *matcher = calloc(size, sizeof(char));
+	/* CHANGE THIS CALLOC BELOW AND DOES IT NEED A FREE?????*/
+	char *matcher = malloc(size);
 	int i;
 
+	if (matcher == NULL)
+		return (NULL);
+	memset(matcher, 0, size);
 	for (i = 0; environ[i]; i++)
 	{
 		strncpy(matcher, environ[i], size - 1);
@@ -216,9 +200,9 @@ char *_getenv(char *name)
  * @line: line to be turned into arguments
  * Return: void
  **/
-int make_av(char *(*av)[], char *line)
+void make_av(char *av[], char *line)
 {
-	int i = 0, j = 0, k = 0;
+	int i = 0, j = 0;
 	char *ptr = NULL;
 
 	for (; line[i] != '\0'; i++, j++)
@@ -231,22 +215,24 @@ int make_av(char *(*av)[], char *line)
 		if (line[i] != '\0')
 		{
 			*(line + i) = '\0';
-			(*av)[j] = ptr;
+			av[j] = ptr;
 			if (j == 0)
-				(*av)[j] = find_right_path((*av)[j]);
+				av[j] = find_right_path(av[j]);
+			/* printf("av[j] is: %s\n", av[j]); */
 			/* (*av)[j] = NULL; */
 		}
 	}
 	/* This logic below was blocking arguments to /bin/ls when inside of for loop, does movig help????*/
-	if ((*av)[0][0] != '/')
+	/* if ((*av)[0][0] == '/')
 	{
 		k = 1;
-		/* printf("returning k as: %d from outside for loop\n", k); */
+		printf("returning k as: %d from outside for loop\n", k);
 		return (k);
-	}
-	(*av)[j] = NULL;
+	} */
+	printf("j is: %d\n", j);
+	av[j] = NULL;
 	/* printf("returning k as: %d from end of program\n", k); */
-	return (k);
+	/* return (k); */
 }
 
 void print_env(char *envp[])
