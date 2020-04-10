@@ -241,11 +241,11 @@ int make_av(char *(*av)[], char *line)
 	if ((*av)[0][0] != '/')
 	{
 		k = 1;
-		printf("returning k as: %d from outside for loop\n", k);
+		/* printf("returning k as: %d from outside for loop\n", k); */
 		return (k);
 	}
 	(*av)[j] = NULL;
-	printf("returning k as: %d from end of program\n", k);
+	/* printf("returning k as: %d from end of program\n", k); */
 	return (k);
 }
 
