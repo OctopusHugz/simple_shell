@@ -98,8 +98,8 @@ int main(int argc, char *argv[], char *envp[])
 				/* printf("child has freed buf\n"); */
 				exit(EXIT_FAILURE);
 			}
-			free(path);
-			path = NULL;
+			/* free(path);
+			path = NULL; */
 			/* free(buf);
 			buf = NULL; */
 		}
@@ -108,8 +108,12 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* free(path);
-		path = NULL; */
+		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK */
+		if (*buf != '/')
+		{
+			free(path);
+			path = NULL;
+		}
 		/* printf("path has been freed and nulled after executing\n"); */
 		/* free(*av);
 		*av = NULL;
