@@ -10,29 +10,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-/* Typedefs go here */
-typedef struct list_s
-{
-	char *dir;
-	struct list_s *next;
-} dir_t;
-
-/* Colson Prototypes go here */
-char *rev_string(char *s);
-void free_grid(char **grid, int height);
 /* Prototypes go here */
 char *_getenv(char *name);
 char *find_right_path(char *command);
-dir_t *make_path_list(char *path);
-dir_t *add_dir(dir_t **head, const char *dir);
-void free_list(dir_t *head);
-void make_av(char *av[], char *line);
+char *make_av(char *av[], char *line);
 void print_env(char *envp[]);
 #endif
 
 int main(int argc, char *argv[], char *envp[])
 {
-	char *buf = NULL, *av[1024];
+	char *buf = NULL, *av[4096], *path;
 	size_t size = 0;
 	int status = 0;
 	pid_t child_pid = 0;
@@ -42,7 +29,7 @@ int main(int argc, char *argv[], char *envp[])
 		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	/* av[0] = NULL; */ /* I don't know why I have to do this frankly */
+	/* av[0] = NULL; */
 	while (1)
 	{
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
@@ -61,7 +48,7 @@ int main(int argc, char *argv[], char *envp[])
 		/* av = malloc(sizeof(char *) * 2 num_args + 1);
 		if (av == NULL)
 			return (0); */
-		make_av(av, buf); /* Make argv[] for next exec */
+		path = make_av(av, buf); /* Make argv[] for next exec */
 		/* if (av[0] == NULL)
 			continue; */
 		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
@@ -90,12 +77,11 @@ int main(int argc, char *argv[], char *envp[])
 			perror("fork");
 			free(buf);
 			buf = NULL;
-			/* IS THIS EXIT NEEDED????? */
 			exit(EXIT_FAILURE);
 		}
 		else if (child_pid == 0)
 		{
-			if (execve(av[0], av, envp) == -1)
+			if (execve(path, av, envp) == -1)
 			{
 				perror("execve");
 				/* printf("%s: 1: ", argv[0]);
@@ -118,7 +104,6 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* INVALID FREE WHEN NOT USING /BIN/ FIRST!!!!!!?????? */
 		/* printf("*av is: %s\n", *av); */
 		/* free(*av);
 		*av = NULL;
@@ -164,9 +149,6 @@ char *find_right_path(char *command)
 			free(path);
 			return (path_ptr);
 		}
-		/* 	return(path); */
-		/* return (path); */
-		/* IS PATH NOT FREED HERE??? IS THAT OUR ISSUE */
 	}
 	free(path);
 	return (command);
@@ -202,11 +184,12 @@ char *_getenv(char *name)
  * @line: line to be turned into arguments
  * Return: void
  **/
-void make_av(char *av[], char *line)
+char *make_av(char *av[], char *line)
 {
 	int i = 0, j = 0;
-	char *ptr = NULL;
+	char *ptr = NULL, *path_ptr = NULL;
 
+	memset(av, 0, 1024);
 	for (; line[i] != '\0'; i++, j++)
 	{
 		while (line[i] == ' ' || line[i] == '\n')
@@ -217,25 +200,19 @@ void make_av(char *av[], char *line)
 		if (line[i] != '\0')
 		{
 			*(line + i) = '\0';
-			av[j] = ptr;
 			if (j == 0)
-				av[j] = find_right_path(av[j]);
-			/* printf("av[1] is: %s\n", av[1]); */
-			/* (*av)[j] = NULL; */
+				path_ptr = find_right_path(ptr);
+			av[j] = ptr;
+			printf("av[%d] is: %s\n", j, av[j]);
+			/* if (j == 0)
+				av[j] = find_right_path(ptr);
+			printf("av[%d] is: %s\n", j, av[j]); */
 		}
 	}
-	/* This logic below was blocking arguments to /bin/ls when inside of for loop, does movig help????*/
-	/* if ((*av)[0][0] == '/')
-	{
-		k = 1;
-		printf("returning k as: %d from outside for loop\n", k);
-		return (k);
-	} */
-	printf("j is: %d\n", j);
 	av[j] = NULL;
-	printf("av[1] is: %s\n", av[1]);
-	/* printf("returning k as: %d from end of program\n", k); */
-	/* return (k); */
+	printf("av[%d] is: %s\n", j, av[j]);
+	printf("path_ptr is: %s\n", path_ptr);
+	return(path_ptr);
 }
 
 void print_env(char *envp[])
