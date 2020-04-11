@@ -132,7 +132,7 @@ int main(int argc, char *argv[], char *envp[])
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL;
+	char *path = NULL, *dir = NULL, *ptr = NULL, pp[1024], *path_ptr = NULL;
 	size_t size;
 	int i = 0, j = 0;
 
@@ -158,7 +158,13 @@ char *find_right_path(char *command)
 		path = strcat(strcat(path, "/"), command);
 
 		if (stat(path, &st) == 0)
-			return(path);
+		{
+			strcpy(pp, path);
+			path_ptr = pp;
+			free(path);
+			return (path_ptr);
+		}
+		/* 	return(path); */
 		/* return (path); */
 		/* IS PATH NOT FREED HERE??? IS THAT OUR ISSUE */
 	}
