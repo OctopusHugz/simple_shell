@@ -40,7 +40,7 @@ int main(int argc, char *argv[], char *envp[])
 			buf = NULL;
 			/* free(*av);
 			*av = NULL; */
-			printf("getline -1 has freed buf\n");
+			/* printf("getline -1 has freed buf\n"); */
 			break;
 		}
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
@@ -49,17 +49,6 @@ int main(int argc, char *argv[], char *envp[])
 		if (av == NULL)
 			return (0); */
 		path = make_av(av, buf); /* Make argv[] for next exec */
-		if (*path != '/')
-		{
-			/* free(path);
-			path = NULL; */
-			continue;
-		}
-		/* if ((strcmp(path, buf == ) */
-		/* if (av[0] == NULL)
-			continue; */
-		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
-			continue; */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
 		if (strcmp(buf, "exit") == 0)
 		{
@@ -78,6 +67,18 @@ int main(int argc, char *argv[], char *envp[])
 			*av = NULL;
 			continue;
 		}
+		if (*path != '/')
+		{
+			/* free(path);
+			path = NULL; */
+			continue;
+		}
+		/* if ((strcmp(path, buf == ) */
+		/* if (av[0] == NULL)
+			continue; */
+		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
+			continue; */
+
 		child_pid = fork(); /* fork if command is valid */
 		if (child_pid == -1)
 		{
