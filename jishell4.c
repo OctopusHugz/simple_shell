@@ -30,8 +30,6 @@ void make_av(char *av[], char *line);
 void print_env(char *envp[]);
 #endif
 
-int i = 0;
-
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buf = NULL, *av[1024];
@@ -44,7 +42,7 @@ int main(int argc, char *argv[], char *envp[])
 		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	av[0] = NULL; /* I don't know why I have to do this frankly */
+	/* av[0] = NULL; */ /* I don't know why I have to do this frankly */
 	while (1)
 	{
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
@@ -60,8 +58,12 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
 			continue;
+		/* av = malloc(sizeof(char *) * 2 num_args + 1);
+		if (av == NULL)
+			return (0); */
 		make_av(av, buf); /* Make argv[] for next exec */
-						  /* if (av[0]) */
+		/* if (av[0] == NULL)
+			continue; */
 		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
 			continue; */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
@@ -130,7 +132,7 @@ int main(int argc, char *argv[], char *envp[])
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL, path_ptr[1024], *pp;
+	char *path = NULL, *dir = NULL, *ptr = NULL;
 	size_t size;
 	int i = 0, j = 0;
 
@@ -156,13 +158,7 @@ char *find_right_path(char *command)
 		path = strcat(strcat(path, "/"), command);
 
 		if (stat(path, &st) == 0)
-		{
-			memset(path_ptr, 0, strlen(path));
-			memcpy(path_ptr, path, strlen(path));
-			free(path);
-			pp = &path_ptr[0];
-			return (pp);
-		}
+			return(path);
 		/* return (path); */
 		/* IS PATH NOT FREED HERE??? IS THAT OUR ISSUE */
 	}
@@ -218,7 +214,7 @@ void make_av(char *av[], char *line)
 			av[j] = ptr;
 			if (j == 0)
 				av[j] = find_right_path(av[j]);
-			/* printf("av[j] is: %s\n", av[j]); */
+			/* printf("av[1] is: %s\n", av[1]); */
 			/* (*av)[j] = NULL; */
 		}
 	}
@@ -231,6 +227,7 @@ void make_av(char *av[], char *line)
 	} */
 	printf("j is: %d\n", j);
 	av[j] = NULL;
+	printf("av[1] is: %s\n", av[1]);
 	/* printf("returning k as: %d from end of program\n", k); */
 	/* return (k); */
 }
