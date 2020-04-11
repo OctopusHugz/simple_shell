@@ -49,6 +49,13 @@ int main(int argc, char *argv[], char *envp[])
 		if (av == NULL)
 			return (0); */
 		path = make_av(av, buf); /* Make argv[] for next exec */
+		if (*path != '/')
+		{
+			/* free(path);
+			path = NULL; */
+			continue;
+		}
+		/* if ((strcmp(path, buf == ) */
 		/* if (av[0] == NULL)
 			continue; */
 		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
