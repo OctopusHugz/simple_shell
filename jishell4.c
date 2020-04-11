@@ -95,16 +95,22 @@ int main(int argc, char *argv[], char *envp[])
 				/* break; */
 				free(buf);
 				buf = NULL;
-				printf("child has freed buf\n");
+				/* printf("child has freed buf\n"); */
 				exit(EXIT_FAILURE);
 			}
+			free(path);
+			path = NULL;
+			/* free(buf);
+			buf = NULL; */
 		}
 		else
 		{
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* printf("*av is: %s\n", *av); */
+		/* free(path);
+		path = NULL; */
+		/* printf("path has been freed and nulled after executing\n"); */
 		/* free(*av);
 		*av = NULL;
 		printf("av has been freed and nulled from end of while loop\n"); */
@@ -117,7 +123,7 @@ int main(int argc, char *argv[], char *envp[])
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL, pp[1024], *path_ptr = NULL;
+	char *path = NULL, *dir = NULL, *ptr = NULL;
 	size_t size;
 	int i = 0, j = 0;
 
@@ -144,10 +150,11 @@ char *find_right_path(char *command)
 
 		if (stat(path, &st) == 0)
 		{
-			strcpy(pp, path);
+			/* strcpy(pp, path);
 			path_ptr = pp;
 			free(path);
-			return (path_ptr);
+			return (path_ptr); */
+			return (path);
 		}
 	}
 	free(path);
@@ -203,15 +210,15 @@ char *make_av(char *av[], char *line)
 			if (j == 0)
 				path_ptr = find_right_path(ptr);
 			av[j] = ptr;
-			printf("av[%d] is: %s\n", j, av[j]);
+			/* printf("av[%d] is: %s\n", j, av[j]); */
 			/* if (j == 0)
 				av[j] = find_right_path(ptr);
 			printf("av[%d] is: %s\n", j, av[j]); */
 		}
 	}
 	av[j] = NULL;
-	printf("av[%d] is: %s\n", j, av[j]);
-	printf("path_ptr is: %s\n", path_ptr);
+	/* printf("av[%d] is: %s\n", j, av[j]);
+	printf("path_ptr is: %s\n", path_ptr); */
 	return(path_ptr);
 }
 
