@@ -21,7 +21,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	char *buf = NULL, *av[4096], *path;
 	size_t size = 0;
-	int status = 0;
+	int status = 0, line_num = 0;
 	pid_t child_pid = 0;
 
 	if (argc != 1) /* Print usage if argc is off */
@@ -32,22 +32,17 @@ int main(int argc, char *argv[], char *envp[])
 	/* av[0] = NULL; */
 	while (1)
 	{
+		line_num++;
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
 			printf("$ ");
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
 		{
 			free(buf);
 			buf = NULL;
-			/* free(*av);
-			*av = NULL; */
-			/* printf("getline -1 has freed buf\n"); */
 			break;
 		}
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
 			continue;
-		/* av = malloc(sizeof(char *) * 2 num_args + 1);
-		if (av == NULL)
-			return (0); */
 		path = make_av(av, buf); /* Make argv[] for next exec */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
 		if (strcmp(buf, "exit") == 0)
@@ -67,16 +62,9 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		if (*path != '/')
 		{
-			/* free(path);
-			path = NULL; */
+			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
 			continue;
 		}
-		/* if ((strcmp(path, buf == ) */
-		/* if (av[0] == NULL)
-			continue; */
-		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
-			continue; */
-
 		child_pid = fork(); /* fork if command is valid */
 		if (child_pid == -1)
 		{
@@ -90,24 +78,10 @@ int main(int argc, char *argv[], char *envp[])
 			if (execve(path, av, envp) == -1)
 			{
 				perror("execve");
-				/* printf("%s: 1: ", argv[0]);
-				while (av[1][i])
-				{
-					if (av[1][i] != '"')
-						printf("%c", av[1][i]);
-					i++;
-				}
-				printf(": not found"); */
-				/* break; */
 				free(buf);
 				buf = NULL;
-				/* printf("child has freed buf\n"); */
 				exit(EXIT_FAILURE);
 			}
-			/* free(path);
-			path = NULL; */
-			/* free(buf);
-			buf = NULL; */
 		}
 		else
 		{
@@ -120,10 +94,6 @@ int main(int argc, char *argv[], char *envp[])
 			free(path);
 			path = NULL;
 		}
-		/* printf("path has been freed and nulled after executing\n"); */
-		/* free(*av);
-		*av = NULL;
-		printf("av has been freed and nulled from end of while loop\n"); */
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
@@ -229,7 +199,7 @@ char *make_av(char *av[], char *line)
 	av[j] = NULL;
 	/* printf("av[%d] is: %s\n", j, av[j]);
 	printf("path_ptr is: %s\n", path_ptr); */
-	return(path_ptr);
+	return (path_ptr);
 }
 
 void print_env(char *envp[])
