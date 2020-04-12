@@ -30,13 +30,11 @@ void make_av(char *(*av)[], char *line);
 void print_env(char *envp[]);
 #endif
 
-int i = 0;
-
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buf = NULL, *av[1024];
 	size_t size = 0;
-	int /* i = 0,  */ status = 0;
+	int status = 0;
 	pid_t child_pid = 0;
 
 	if (argc != 1) /* Print usage if argc is off */
@@ -56,9 +54,7 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			free(buf);
 			buf = NULL;
-			/* free(*av);
-			*av = NULL; */
-			printf("getline -1 has freed buf and av\n");
+			printf("getline -1 has freed buf\n");
 			break;
 		}
 
@@ -89,12 +85,10 @@ int main(int argc, char *argv[], char *envp[])
 		/* ADD IS_VALID_COMMAND FUNCTION HERE OR MAKE THE make_av() FUNCTION CALL RETURN WHETHER THE COMMAND IS INVALID AND CONTINUE IF SO */
 		if (strcmp(buf, "myguy") == 0)
 		{
-			/* free(*av);
-			*av = NULL; */
 			continue;
 		}
 
-		/* if (av[0] == NULL)
+		if (av[0] == NULL)
 		{
 			printf("invalid command\n");
 			free(buf);
@@ -102,7 +96,7 @@ int main(int argc, char *argv[], char *envp[])
 			free(*av);
 			*av = NULL;
 			continue;
-		} */
+		}
 		child_pid = fork(); /* Fork this shit */
 		if (child_pid == -1)
 		{
@@ -114,21 +108,26 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		else if (child_pid == 0)
 		{
+			/* IF COMMMAND IS INVALID RESTART LOOP */
+			/* CONTINUE, BREAK, OR EXIT HERE????? */
+			/* if (av[0] == NULL)
+			{
+
+				free(buf);
+				buf = NULL;
+				free(*av);
+				*av = NULL;
+				exit(EXIT_FAILURE);
+			} */
+			/* break; */
 			if (execve(av[0], av, envp) == -1)
 			{
 				perror("execve");
-				/* printf("%s: 1: ", argv[0]);
-				while (av[1][i])
-				{
-					if (av[1][i] != '"')
-						printf("%c", av[1][i]);
-					i++;
-				}
-				printf(": not found"); */
-				/* break; */
 				free(buf);
 				buf = NULL;
 				printf("child has freed buf\n");
+				/* free(*av);
+				*av = NULL; */
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -139,8 +138,10 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		free(*av);
 		*av = NULL;
-		printf("av has been freed and nulled\n");
 	}
+	/* free(buf);
+	buf = NULL; */
+	/* Free arguments buffer */
 	/* free(*av);
 	*av = NULL; */
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
@@ -191,7 +192,6 @@ char *_getenv(char *name)
 {
 	extern char **environ;
 	size_t size = sizeof(char) * strlen(name) + 1;
-	/* CHANGE THIS CALLOC BELOW */
 	char *matcher = calloc(size, sizeof(char));
 	int i;
 
@@ -228,8 +228,6 @@ void make_av(char *(*av)[], char *line)
 			(*av)[j] = ptr;
 			if (j == 0)
 				(*av)[j] = find_right_path((*av)[j]);
-			if ((*av)[j][0] != '/')
-				printf("path not specified\n");
 			/* (*av)[j] = NULL; */
 		}
 	}
