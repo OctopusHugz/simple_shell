@@ -9,8 +9,8 @@ int main(int argc, char *argv[], char *envp[])
 
 	if (argc != 1) /* Print usage if argc is off */
 	{
-		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
-		exit(EXIT_FAILURE);
+		dprintf(STDERR_FILENO, "%s: 0: Can't open %s\n", argv[0], argv[1]);
+		exit(127); /* This is the error number sh prints out */
 	}
 	/* av[0] = NULL; */
 	while (1)
