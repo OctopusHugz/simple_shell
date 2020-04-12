@@ -58,6 +58,8 @@ int main(int argc, char *argv[], char *envp[])
 			print_env(envp);
 			free(buf);
 			buf = NULL;
+			free(path);
+			path = NULL;
 			continue;
 		}
 		if (*path != '/')
