@@ -65,7 +65,7 @@ int main(int argc, char *argv[], char *envp[])
 		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
 			continue; */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
-		if (strcmp(buf, "exit") == 0)
+		/*if (strcmp(buf, "exit") == 0)
 		{
 			if (av[1])
 				status = atoi(av[1]);
@@ -81,7 +81,7 @@ int main(int argc, char *argv[], char *envp[])
 			free(*av);
 			*av = NULL;
 			continue;
-		}
+		}*/
 		child_pid = fork(); /* fork if command is valid */
 		if (child_pid == -1)
 		{
