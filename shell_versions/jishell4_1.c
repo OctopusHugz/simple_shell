@@ -1,10 +1,40 @@
-#include "shell.h"
+#ifndef GUARD
+#define GUARD
+
+/* Header files go here */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+/* Typedefs go here */
+typedef struct list_s
+{
+	char *dir;
+	struct list_s *next;
+} dir_t;
+
+/* Colson Prototypes go here */
+char *rev_string(char *s);
+void free_grid(char **grid, int height);
+/* Prototypes go here */
+char *_getenv(char *name);
+char *find_right_path(char *command);
+dir_t *make_path_list(char *path);
+dir_t *add_dir(dir_t **head, const char *dir);
+void free_list(dir_t *head);
+void make_av(char *av[], char *line);
+void print_env(char *envp[]);
+#endif
 
 int main(int argc, char *argv[], char *envp[])
 {
-	char *buf = NULL, *av[4096], *path;
+	char *buf = NULL, *av[1024];
 	size_t size = 0;
-	int status = 0, line_num = 0;
+	int status = 0;
 	pid_t child_pid = 0;
 
 	if (argc != 1) /* Print usage if argc is off */
@@ -12,23 +42,32 @@ int main(int argc, char *argv[], char *envp[])
 		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	/* av[0] = NULL; */
+	av[0] = NULL;
 	while (1)
 	{
-		line_num++;
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
 			printf("$ ");
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
 		{
 			free(buf);
 			buf = NULL;
+			/* free(*av);
+			*av = NULL; */
+			printf("getline -1 has freed buf\n");
 			break;
 		}
 		if (buf[0] == '\n') /* Start over if buf is just '\n' */
 			continue;
-		path = make_av(av, buf); /* Make argv[] for next exec */
+		/* av = malloc(sizeof(char *) * 2 num_args + 1);
+		if (av == NULL)
+			return (0); */
+		make_av(av, buf); /* Make argv[] for next exec */
+		/* if (av[0] == NULL)
+			continue; */
+		/* if ((av_status == 1 && (strcmp(buf, "exit") != 0)))
+			continue; */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
-		/*if (strcmp(buf, "exit") == 0)
+		if (strcmp(buf, "exit") == 0)
 		{
 			if (av[1])
 				status = atoi(av[1]);
@@ -41,15 +80,10 @@ int main(int argc, char *argv[], char *envp[])
 			print_env(envp);
 			free(buf);
 			buf = NULL;
-			free(path);
-			path = NULL;
+			free(*av);
+			*av = NULL;
 			continue;
 		}
-		if (*path != '/')
-		{
-			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
-			continue;
-		}*/
 		child_pid = fork(); /* fork if command is valid */
 		if (child_pid == -1)
 		{
@@ -60,11 +94,21 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		else if (child_pid == 0)
 		{
-			if (execve(path, av, envp) == -1)
+			if (execve(av[0], av, envp) == -1)
 			{
 				perror("execve");
+				/* printf("%s: 1: ", argv[0]);
+				while (av[1][i])
+				{
+					if (av[1][i] != '"')
+						printf("%c", av[1][i]);
+					i++;
+				}
+				printf(": not found"); */
+				/* break; */
 				free(buf);
 				buf = NULL;
+				printf("child has freed buf\n");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -73,12 +117,10 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK */
-		if (*buf != '/')
-		{
-			free(path);
-			path = NULL;
-		}
+		/* printf("*av is: %s\n", *av); */
+		/* free(*av);
+		*av = NULL;
+		printf("av has been freed and nulled from end of while loop\n"); */
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
@@ -88,7 +130,7 @@ int main(int argc, char *argv[], char *envp[])
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL;
+	char *path = NULL, *dir = NULL, *ptr = NULL, pp[1024], *path_ptr = NULL;
 	size_t size;
 	int i = 0, j = 0;
 
@@ -115,12 +157,14 @@ char *find_right_path(char *command)
 
 		if (stat(path, &st) == 0)
 		{
-			/* strcpy(pp, path);
+			strcpy(pp, path);
 			path_ptr = pp;
 			free(path);
-			return (path_ptr); */
-			return (path);
+			return (path_ptr);
 		}
+		/* 	return(path); */
+		/* return (path); */
+		/* IS PATH NOT FREED HERE??? IS THAT OUR ISSUE */
 	}
 	free(path);
 	return (command);
@@ -156,35 +200,33 @@ char *_getenv(char *name)
  * @line: line to be turned into arguments
  * Return: void
  **/
-char *make_av(char *av[], char *line)
+void make_av(char *av[], char *line)
 {
-	int i = 0, j = 0;
-	char *ptr = NULL, *path_ptr = NULL;
+	int i = 0, j = 0, num_commands = 0;
+	char *cmd_ptr = NULL, *av_ptr = NULL, *path;
 
 	memset(av, 0, 1024);
-	for (; line[i] != '\0'; i++, j++)
+	cmd_ptr = line;
+
+	while ((av_ptr = strchr(line, ' ')))
 	{
-		while (line[i] == ' ' || line[i] == '\n')
-			i++;
-		ptr = line + i;
-		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
-			i++;
-		if (line[i] != '\0')
-		{
-			*(line + i) = '\0';
-			if (j == 0)
-				path_ptr = find_right_path(ptr);
-			av[j] = ptr;
-			/* printf("av[%d] is: %s\n", j, av[j]); */
-			/* if (j == 0)
-				av[j] = find_right_path(ptr);
-			printf("av[%d] is: %s\n", j, av[j]); */
-		}
+		*av_ptr = '\0';
+		av_ptr++;
+		printf("av_ptr is: %s\n", av_ptr);
 	}
-	av[j] = NULL;
-	/* printf("av[%d] is: %s\n", j, av[j]);
-	printf("path_ptr is: %s\n", path_ptr); */
-	return (path_ptr);
+	printf("cmd_ptr is: %s\n", cmd_ptr);
+	if (i == 0)
+		path = find_right_path(cmd_ptr);
+	printf("av[0] is: %s\n", av[0]);
+	i++;
+	av[i] = ;
+	while(av[j])
+	{
+		/* if (av[j] == ' ' && av[j + 1] != ' ') */
+		num_commands++;
+		j++;
+	}
+	printf("num_commands is: %d\n", num_commands);
 }
 
 void print_env(char *envp[])
