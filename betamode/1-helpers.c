@@ -8,12 +8,14 @@ char *find_right_path(char *command)
 {
 	struct stat st;
 	char *path = NULL, *dir = NULL, *ptr = NULL;
-	size_t size;
+	size_t size = 0;
 	int i = 0, j = 0;
 
 	if (command == NULL)
 		return (NULL);
 	ptr = _getenv("PATH");
+	if (ptr == NULL)
+		return (NULL);
 	while (ptr[i] != '=')
 		i++;
 	dir = ptr + i + 1;
@@ -33,7 +35,7 @@ char *find_right_path(char *command)
 			return (path);			
 	}
 	free(path);
-	return (command);
+	return (NULL);
 }
 /**
  * get_env - returns environment info for name
@@ -43,17 +45,25 @@ char *find_right_path(char *command)
 char *_getenv(char *name)
 {
 	extern char **environ;
-	size_t size = sizeof(char) * strlen(name) + 1;
-	char *matcher = calloc(size, sizeof(char));
-	int i;
+	size_t i, j;
 
+	for (i = 0; environ[i]; i++)
+	{
+		for (j = 0; name[j] != '\0'; j++)
+			if (environ[i][j] != name[j])
+				break;
+		
+		if (j == strlen(name) && environ[i][j - 1] == name[j - 1])
+			break;
+	}
+	/*
 	for (i = 0; environ[i]; i++)
 	{
 		strncpy(matcher, environ[i], size - 1);
 		if (strcmp(matcher, name) == 0)
-			break;
+			break;	
 	}
-	free(matcher);
+	free(matcher);*/
 	return (environ[i]);
 }
 /**
@@ -69,17 +79,29 @@ void make_av(char *(*av)[], char *line)
 
 	for (; line[i] != '\0'; i++, j++)
 	{
+		/* Find beginning of word */
 		while (line[i] == ' ' || line[i] == '\n')
 			i++;		
-		ptr = line + i;
+		/* check later if arrow keys mess this up */
+		/* Use ptr to store beginning of word */
+		ptr = &line[i];
+		/* Find end of word */
 		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
 			i++;
+		/* Check if you found the last word. If not, */
 		if (line[i] != '\0')
-		{
 			*(line + i) = '\0';
-			(*av)[j] = ptr;
-			if (j == 0)
-				(*av)[j] = find_right_path((*av)[j]);
+		/* Assign word to index in av */
+		(*av)[j] = ptr;
+		/* Create command for av[0] */
+		if (j == 0)
+		{
+			(*av)[j] = find_right_path((*av)[j]);
+			if ((*av)[j] == NULL)
+			{
+				dprintf(STDERR_FILENO, "%s: command not found\n", ptr);
+				break;
+			}
 		}
 	}
 	(*av)[j] = NULL;

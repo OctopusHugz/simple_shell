@@ -27,6 +27,12 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 
 		make_av(&av, buf);				/* Make argv[] for next exec */
+		if (av[0] == NULL)
+		{
+			free(buf);
+			free(av[0]);
+			exit(127);
+		}
 		child_pid = fork();					/* Fork this shit */
 		if (child_pid == -1)
 			perror("Fork failure");
