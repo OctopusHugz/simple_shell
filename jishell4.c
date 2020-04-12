@@ -1,21 +1,4 @@
-#ifndef GUARD
-#define GUARD
-
-/* Header files go here */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-/* Prototypes go here */
-char *_getenv(char *name);
-char *find_right_path(char *command);
-char *make_av(char *av[], char *line);
-void print_env(char *envp[]);
-#endif
+#include "shell.h"
 
 int main(int argc, char *argv[], char *envp[])
 {
