@@ -24,7 +24,7 @@ int main(int argc, char *argv[], char *envp[])
 			buf = NULL;
 			break;
 		}
-		if (buf[0] == '\n') /* Start over if buf is just '\n' */
+		if ((strcmp(buf, "\n") == 0)) /* Start over if buf is just '\n' */
 			continue;
 		path = make_av(av, buf); /* Make argv[] for next exec */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
@@ -74,12 +74,13 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK */
-		if (*buf != '/')
+		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
+		if (*buf != '/' && *buf != ' ' && *buf != '\n')
 		{
 			free(path);
 			path = NULL;
 		}
+
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
@@ -91,27 +92,50 @@ char *find_right_path(char *command)
 	struct stat st;
 	char *path = NULL, *dir = NULL, *ptr = NULL;
 	size_t size;
-	int i = 0, j = 0;
+	int i = 0;
 
-	if (command == NULL)
+	/*CHECK LATER WHAT HAPPENS IF COMMAND IS NULL*/
+    if (command == NULL)
 		return (NULL);
-	ptr = _getenv("PATH");
-	while (ptr[i] != '=')
-		i++;
-	dir = ptr + i + 1;
-	for (i = 0; dir[i] != '\0'; i++)
+    
+	dir = _getenv("PATH");
+
+	while (*dir != '=')
+        dir++;
+    dir++;
+
+    if (*dir == ':')
+    {
+        /**
+         * The fix looks something like what I wrote below. It uses
+         * getcwd, which gets the current working directory
+         * and returns it as a string. We can set path to "cwd/command",
+         * stat it, and if stat finds a match, then we return this path.
+         * If it doesn't find a match, then we free the ptr we used to point
+         * to cwd and move on to the rest of the function.
+         *  
+         *      cwd = getcwd(arguments); <--- idk what the args are. pay attention to freeing things.
+         *      cwd = strcat(strcat(cwd, "/"), command);
+         *      if (stat(cwd, &st) == 0)
+         *          return (cwd);
+         *      free(cwd); <---- idk if this is what needs to be freed, but it'll be something.
+         **/
+        return (command);
+    }
+
+
+	for (; *dir != '\0'; dir++)
 	{
-		ptr = dir + i;
-		for (j = 0; dir[i] != ':' && dir[i] != '\0'; j++, i++)
+		ptr = dir;
+		for (i = 0; *dir != ':' && *dir != '\0'; i++, dir++)
 			;
-		if (dir[i] == '\0')
-			break;
-		size = (j + strlen(command) + 2);
+
+		size = (i + strlen(command) + 2);
 		path = realloc(path, size);
 		if (path == NULL)
 			return (NULL);
-		strncpy(path, ptr, j);
-		path[j] = '\0';
+		strncpy(path, ptr, i);
+		path[i] = '\0';
 		path = strcat(strcat(path, "/"), command);
 
 		if (stat(path, &st) == 0)
@@ -128,20 +152,17 @@ char *find_right_path(char *command)
 char *_getenv(char *name)
 {
 	extern char **environ;
-	size_t size = strlen(name) + 1;
-	char *matcher = malloc(size);
-	int i;
+	size_t i, j;
 
-	if (matcher == NULL)
-		return (NULL);
-	memset(matcher, 0, size);
 	for (i = 0; environ[i]; i++)
 	{
-		strncpy(matcher, environ[i], size - 1);
-		if (strcmp(matcher, name) == 0)
+		for (j = 0; name[j] != '\0'; j++)
+			if (environ[i][j] != name[j])
+				break;
+		
+		if (j == strlen(name) && environ[i][j - 1] == name[j - 1])
 			break;
 	}
-	free(matcher);
 	return (environ[i]);
 }
 /**
@@ -154,33 +175,31 @@ char *make_av(char *av[], char *line)
 {
 	int i = 0, j = 0;
 	char *ptr = NULL, *path_ptr = NULL;
-
 	memset(av, 0, 1024);
 	for (; line[i] != '\0'; i++, j++)
-    {
-        while (line[i] == ' ' || line[i] == '\n')
-            i++;
-        ptr = line + i;
-        while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
-            i++;
-
-    
-        if (line[i] != '\0')
-            line[i] = '\0';
-        else
-            break;
-
-        av[j] = ptr;
+	{
+		while (line[i] == ' ' || line[i] == '\n')
+			i++;
+		ptr = line + i;
+		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
+			i++;
+		if (line[i] != '\0')
+			line[i] = '\0';
+		else
+		{
+			break;
+		}
+		av[j] = ptr;
 		if (j == 0)
 		{
-			path_ptr = find_right_path(av[j]);
-			/*if ((*av)[j] == NULL)
+			path_ptr = find_right_path(ptr);
+			/* if ((*av)[j] == NULL)
 			{
 				dprintf(STDERR_FILENO, "%s: command not found\n", ptr);
 				break;
-			}*/
+			} */
 		}
-    }
+	}
 	av[j] = NULL;
 	return (path_ptr);
 }
