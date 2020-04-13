@@ -24,7 +24,7 @@ int main(int argc, char *argv[], char *envp[])
 			buf = NULL;
 			break;
 		}
-		if (buf[0] == '\n') /* Start over if buf is just '\n' */
+		if ((strcmp(buf, "\n") == 0)) /* Start over if buf is just '\n' */
 			continue;
 		path = make_av(av, buf); /* Make argv[] for next exec */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
