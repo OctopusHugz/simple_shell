@@ -25,32 +25,17 @@ int main(int argc, char *argv[], char *envp[])
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
 			printf("$ ");
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
-		{
-			/*free(buf);
-			buf = NULL;*/
 			break;
-		}
 		if ((strcmp(buf, "\n") == 0)) /* Start over if buf is just '\n' */
 			continue;
 		if (strcmp(buf, "env") == 0)
 		{
 			print_env(envp);
-			/*free(buf);
-			buf = NULL;
-			free(path);
-			path = NULL;*/
 			continue;
 		}
 		if (strncmp(buf, "exit", 4) == 0)
-		{
-			/*if (av[1])
-				status = atoi(av[1]);*/
-			/*free(buf);
-			buf = NULL;*/
 			exit(status);
-		}
 		path = make_av(av, buf); /* Make argv[] for next exec */
-		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
 		if (path == NULL)
 		{
 			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
@@ -80,8 +65,6 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* DOUBLE CHECK NO PARAMETERS THAT FAIL */
-		/* FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
 		free(path);
 		path = NULL;
 	}
