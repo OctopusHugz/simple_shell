@@ -56,14 +56,6 @@ char *_getenv(char *name)
 		if (j == strlen(name) && environ[i][j - 1] == name[j - 1])
 			break;
 	}
-	/*
-	for (i = 0; environ[i]; i++)
-	{
-		strncpy(matcher, environ[i], size - 1);
-		if (strcmp(matcher, name) == 0)
-			break;	
-	}
-	free(matcher);*/
 	return (environ[i]);
 }
 /**
@@ -88,11 +80,13 @@ void make_av(char *(*av)[], char *line)
 		/* Find end of word */
 		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
 			i++;
-		/* Check if you found the last word. If not, */
-		if (line[i] != '\0')
-			*(line + i) = '\0';
 		/* Assign word to index in av */
 		(*av)[j] = ptr;
+		/* Check if you found the last word. If not,  */
+		if (line[i] != '\0')
+			*(line + i) = '\0';
+		else
+			break;
 		/* Create command for av[0] */
 		if (j == 0)
 		{
