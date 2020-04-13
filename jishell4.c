@@ -9,8 +9,8 @@ int main(int argc, char *argv[], char *envp[])
 
 	if (argc != 1) /* Print usage if argc is off */
 	{
-		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
-		exit(EXIT_FAILURE);
+		dprintf(STDERR_FILENO, "%s: 0: Can't open %s\n", argv[0], argv[1]);
+		exit(127); /* This is the error number sh prints out */
 	}
 	/* av[0] = NULL; */
 	while (1)
@@ -28,7 +28,7 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		path = make_av(av, buf); /* Make argv[] for next exec */
 		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
-		if (strcmp(buf, "exit") == 0)
+		/*if (strcmp(buf, "exit") == 0)
 		{
 			if (av[1])
 				status = atoi(av[1]);
@@ -49,7 +49,7 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
 			continue;
-		}
+		}*/
 		child_pid = fork(); /* fork if command is valid */
 		if (child_pid == -1)
 		{
