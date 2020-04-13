@@ -32,6 +32,7 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			if (av[1])
 				status = atoi(av[1]);
+			/* NEED TO ADD CHECKS HERE TO MAKE SURE STATUS IS JUST AN INT AND NOTHING ELSE */
 			free(buf);
 			buf = NULL;
 			exit(status);
