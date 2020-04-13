@@ -1,0 +1,11 @@
+Things left to do:
+- Fix all memory leaks.
+- Address environment array management
+- Deal with case when user hits 'Enter'
+- Deal with case when user wants to execute something that
+  exists in the current directory
+- Learn setenv and unsetenv
+- Learn what setenv will be used for
+
+Notes:
+AUTHORS, new line?
