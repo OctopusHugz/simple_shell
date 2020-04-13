@@ -74,7 +74,7 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK */
+		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
 		if (*buf != '/' && *buf != ' ' && *buf != '\n')
 		{
 			free(path);
