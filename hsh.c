@@ -118,7 +118,7 @@ char *find_right_path(char *command)
          *      cwd = strcat(strcat(cwd, "/"), command);
          *      if (stat(cwd, &st) == 0)
          *          return (cwd);
-         *      free(cwd); <---- idk if this is what needs to be freed, but it'll be something.
+         *      free(cwd); <--- idk if this is what needs to be freed, but it'll be something.
          **/
         return (command);
     }
