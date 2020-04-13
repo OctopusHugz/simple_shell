@@ -1,5 +1,12 @@
 #include "shell.h"
 
+/**
+ * main - run UNIX simple shell command interpreter
+ * @argc: number of arguments provided to main
+ * @argv: array of strings containing arguments to main
+ * @envp: array of strings containing environment variables
+ * Return: exit status
+ **/
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buf = NULL, *av[4096], *path;
@@ -12,7 +19,6 @@ int main(int argc, char *argv[], char *envp[])
 		dprintf(STDERR_FILENO, "Usage: %s\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
-	/* av[0] = NULL; */
 	while (1)
 	{
 		line_num++;
@@ -74,55 +80,50 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
-		/* DOUBLE CHECK NO PARAMETERS THAT FAIL FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
+		/* DOUBLE CHECK NO PARAMETERS THAT FAIL */
+		/* FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
 		if (*buf != '/' && *buf != ' ' && *buf != '\n')
 		{
 			free(path);
 			path = NULL;
 		}
-
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		putchar('\n');
 	exit(status);
 }
 
+/**
+ * find_right_path - finds the location of an exectuable in the PATH
+ * @command: command exectuable to find in the PATH
+ * Return: path found where command resides, or the command if no path found
+ **/
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL;
+	char *path = NULL, *dir = NULL, *ptr = NULL, *cwd = NULL, *pwd = NULL;
 	size_t size;
 	int i = 0;
 
 	/*CHECK LATER WHAT HAPPENS IF COMMAND IS NULL*/
-    if (command == NULL)
+	if (command == NULL)
 		return (NULL);
-    
+
 	dir = _getenv("PATH");
 
 	while (*dir != '=')
-        dir++;
-    dir++;
+		dir++;
+	dir++;
 
-    if (*dir == ':')
-    {
-        /**
-         * The fix looks something like what I wrote below. It uses
-         * getcwd, which gets the current working directory
-         * and returns it as a string. We can set path to "cwd/command",
-         * stat it, and if stat finds a match, then we return this path.
-         * If it doesn't find a match, then we free the ptr we used to point
-         * to cwd and move on to the rest of the function.
-         *  
-         *      cwd = getcwd(arguments); <--- idk what the args are. pay attention to freeing things.
-         *      cwd = strcat(strcat(cwd, "/"), command);
-         *      if (stat(cwd, &st) == 0)
-         *          return (cwd);
-         *      free(cwd); <--- idk if this is what needs to be freed, but it'll be something.
-         **/
-        return (command);
-    }
-
+	if (*dir == ':')
+	{
+		pwd = _getenv("PWD");
+		cwd = getcwd(cwd, strlen(pwd));
+		cwd = strcat(strcat(cwd, "/"), command);
+		if (stat(cwd, &st) == 0)
+			return (cwd);
+		free(cwd);
+	}
 
 	for (; *dir != '\0'; dir++)
 	{
@@ -144,10 +145,11 @@ char *find_right_path(char *command)
 	free(path);
 	return (command);
 }
+
 /**
- * get_env - returns environment info for name
+ * _getenv - returns environment info for name
  * @name: environment variable to search for
- * Return - env var info in a string of type key=value
+ * Return: env var info in a string of type key=value
  **/
 char *_getenv(char *name)
 {
@@ -159,12 +161,13 @@ char *_getenv(char *name)
 		for (j = 0; name[j] != '\0'; j++)
 			if (environ[i][j] != name[j])
 				break;
-		
+
 		if (j == strlen(name) && environ[i][j - 1] == name[j - 1])
 			break;
 	}
 	return (environ[i]);
 }
+
 /**
  * make_av - make argument array for an execve from a string
  * @av: pointer to argument array to be filled
@@ -175,6 +178,7 @@ char *make_av(char *av[], char *line)
 {
 	int i = 0, j = 0;
 	char *ptr = NULL, *path_ptr = NULL;
+
 	memset(av, 0, 1024);
 	for (; line[i] != '\0'; i++, j++)
 	{
@@ -193,20 +197,26 @@ char *make_av(char *av[], char *line)
 		if (j == 0)
 		{
 			path_ptr = find_right_path(ptr);
-			/* if ((*av)[j] == NULL)
+			if (av[j] == NULL)
 			{
 				dprintf(STDERR_FILENO, "%s: command not found\n", ptr);
 				break;
-			} */
+			}
 		}
 	}
 	av[j] = NULL;
 	return (path_ptr);
 }
 
+/**
+ * print_env - prints all the environment variables
+ * of the current environment from *envp[]
+ * @envp: array of strings containing environment variables
+ **/
 void print_env(char *envp[])
 {
 	int i = 0;
+
 	while (envp[i])
 	{
 		printf("%s\n", envp[i]);
