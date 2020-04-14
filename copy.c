@@ -29,15 +29,15 @@ int main(int argc, char *argv[], char *envp[])
 			buf = NULL;
 			break;
 		}
-		path = make_av(av, buf);			/* Make argv[] for next exec */
-		if ((_strncmp(path, "\n", 1) == 0)) /* Start over if buf is just '\n' */
+		path = make_av(av, buf);			 /* Make argv[] for next exec */
+		if ((_strncmp(av[0], "\n", 1) == 0)) /* Start over if buf is just '\n' */
 			continue;
-		if (_strncmp(path, "exit", 4) == 0)
+		if (_strncmp(av[0], "exit", 4) == 0)
 		{
 			free(buf);
 			exit(status);
 		}
-		if (_strncmp(path, "env", 3) == 0)
+		if (_strncmp(av[0], "env", 3) == 0)
 		{
 			print_env(envp);
 			free(buf);
@@ -173,17 +173,17 @@ char *make_av(char *av[], char *line)
 	memset(av, 0, 1024);
 	for (; line[i] != '\0'; i++, j++)
 	{
-		while (line[i] == ' ')
+		while (line[i] == ' ' || (j != 0 && line[i] == '\n'))
 			i++;
 		ptr = line + i;
-		if (*ptr != '\n')
+		if (j != 0 || line[i] != '\n')
 		{
 			while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
 				i++;
 			line[i] = '\0';
 		}
-
-		av[j] = ptr;
+		if (*ptr)
+			av[j] = ptr;
 		if (j == 0)
 			path_ptr = find_right_path(ptr);
 	}
