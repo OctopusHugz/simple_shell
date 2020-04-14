@@ -24,24 +24,28 @@ int main(int argc, char *argv[], char *envp[])
 		line_num++;
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
 			_puts("$ ");
+		signal(SIGINT, sigint_handler);
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
 		{
 			free(buf);
 			buf = NULL;
 			break;
 		}
-		if ((_strncmp(buf, "\n", 1) == 0)) /* Start over if buf is just '\n' */
+		path = make_av(av, buf);			 /* Make argv[] for next exec */
+		if ((_strncmp(av[0], "\n", 1) == 0)) /* Start over if buf is just '\n' */
 			continue;
-		path = make_av(av, buf); /* Make argv[] for next exec */
-		if ((_strncmp(buf, "exit", 4) == 0))
+		if (_strncmp(av[0], "exit", 4) == 0)
 		{
 			/*if (av[1])
-				status = atoi(av[1]);*/
+				status = _atoi(av[1]);*/
+			/* CHECK IF STATUS IS NOT A NUMBER OR OUT OF RANGE */
 			free(buf);
 			buf = NULL;
+			free(path);
+			path = NULL;
 			exit(status);
 		}
-		if ((_strncmp(buf, "env", 3) == 0))
+		if (_strncmp(av[0], "env", 3) == 0)
 		{
 			print_env(envp);
 			free(buf);
@@ -53,7 +57,7 @@ int main(int argc, char *argv[], char *envp[])
 		if (path == NULL)
 		{
 			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
-			status = 2;
+			status = 127;
 			continue;
 		}
 		child_pid = fork(); /* fork if command is valid */
@@ -74,6 +78,8 @@ int main(int argc, char *argv[], char *envp[])
 				free(buf);
 				buf = NULL;
 				/* NEED TO FREE PATH AND NULL IT HERE?! */
+				free(path);
+				path = NULL;
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -81,144 +87,13 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			if (wait(&status) == -1)
 				perror("wait");
+			/* if (WIFEXITED(status))
+				printf("Child exit status: %d\n", WEXITSTATUS(status)); */
 		}
-		/* DOUBLE CHECK NO PARAMETERS THAT FAIL */
-		/* FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
 		free(path);
 		path = NULL;
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
 		_putchar('\n');
 	exit(status);
-}
-
-/**
- * find_right_path - finds the location of an exectuable in the PATH
- * @command: command exectuable to find in the PATH
- * Return: path found where command resides, or the command if no path found
- **/
-char *find_right_path(char *command)
-{
-	struct stat st;
-	char *path = NULL, *dir = NULL, *ptr = NULL, *pwd = NULL;
-	size_t size = _strlen(command) + 1;
-	int i = 0, path_size = 0;
-
-	/*echo*/
-	if (command == NULL)
-		return (NULL);
-	dir = _getenv("PATH");
-	while (*dir != '=')
-		dir++;
-	dir++;
-	if (*dir == ':')
-	{
-		pwd = _getenv("PWD");
-		path = getcwd(path, strlen(pwd));
-		path = strcat(strcat(path, "/"), command);
-		if (stat(path, &st) == 0)
-			return (path);
-	}
-	for (; *dir != '\0'; dir++)
-	{
-		ptr = dir;
-		for (i = 0; *dir != ':' && *dir != '\0'; i++, dir++)
-			;
-
-		size = (i + _strlen(command) + 2);
-		path = _realloc(path, path_size, size);
-		if (path == NULL)
-			return (NULL);
-		_strncpy(path, ptr, i);
-		path[i] = '\0';
-		path = _strcat(_strcat(path, "/"), command);
-
-		if (stat(path, &st) == 0)
-			return (path);
-
-		path_size = _strlen(path);
-	}
-	path = _realloc(path, path_size, _strlen(command) + 1);
-	path = _strncpy(path, command, _strlen(command) + 1);
-	if (stat(path, &st) == 0)
-		return (path);
-	free(path);
-	return (NULL);
-}
-
-/**
- * _getenv - returns environment info for name
- * @name: environment variable to search for
- * Return: env var info in a string of type key=value
- **/
-char *_getenv(char *name)
-{
-	size_t i, j;
-
-	for (i = 0; environ[i]; i++)
-	{
-		for (j = 0; name[j] != '\0'; j++)
-			if (environ[i][j] != name[j])
-				break;
-
-		if (j == _strlen(name) && environ[i][j - 1] == name[j - 1])
-			break;
-	}
-	return (environ[i]);
-}
-
-/**
- * make_av - make argument array for an execve from a string
- * @av: pointer to argument array to be filled
- * @line: line to be turned into arguments
- * Return: void
- **/
-char *make_av(char *av[], char *line)
-{
-	int i = 0, j = 0;
-	char *ptr = NULL, *path_ptr = NULL;
-
-	memset(av, 0, 1024);
-	for (; line[i] != '\0'; i++, j++)
-	{
-		while (line[i] == ' ' || line[i] == '\n')
-			i++;
-		ptr = line + i;
-		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
-			i++;
-		if (line[i] != '\0')
-			line[i] = '\0';
-		else
-		{
-			break;
-		}
-		av[j] = ptr;
-		if (j == 0)
-		{
-			path_ptr = find_right_path(ptr);
-			if (av[j] == NULL)
-			{
-				dprintf(STDERR_FILENO, "%s: command not found\n", ptr);
-				break;
-			}
-		}
-	}
-	av[j] = NULL;
-	return (path_ptr);
-}
-
-/**
- * print_env - prints all the environment variables
- * of the current environment from *envp[]
- * @envp: array of strings containing environment variables
- **/
-void print_env(char *envp[])
-{
-	int i = 0;
-
-	while (envp[i])
-	{
-		printf("%s\n", envp[i]);
-		i++;
-	}
 }

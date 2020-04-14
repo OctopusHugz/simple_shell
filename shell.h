@@ -8,6 +8,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
+
+typedef void (*sighandler_t)(int);
 
 extern char **environ;
 
@@ -32,5 +35,7 @@ int _putchar(char c);
 void _puts(char *str);
 
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+
+void sigint_handler(int signo);
 
 #endif /* SHELL_H */
