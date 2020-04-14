@@ -9,6 +9,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+extern char **environ;
+
 char *_getenv(char *name);
 
 char *find_right_path(char *command);
