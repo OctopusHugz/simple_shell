@@ -1,1 +1,81 @@
-Add man page text here.
+.TH man 1 "02 April 2020" "1.0" "simple_shell man page"
+.SH NAME
+.B simple_shell
+- a simple UNIX command interpreter.
+.SH SYNOPSIS
+#include \(dqshell.h\(dq
+.SH DESCRIPTION
+Simple_shell is a basic reproduction of the /bin/sh shell implemented with custom functions built during the course of Holberton School Trimester 0. It allows the user to input commands for the shell to execute, either internally or externally. It runs commands and then prompts the user for more input. This is the default behavior until the shell is terminated.
+.sp
+Simple_shell can be run both in interactive mode and non-interactive mode. Interactive mode indicates that the shell is connected to the STDIN and prints the prompt ($ ) accordingly. If run in non-interactive mode, no prompt ($ ) is printed. Also, the command and arguments must be piped into the shell at the command line.
+.sp
+In its current form, simple_shell does not take arguments at the command line, only within the program.
+.SH USAGE
+.B\(d../hsh
+when the exectuable is in the cwd. Otherwise, copy to /bin and run with
+.B /bin/hsh
+.sp
+.B Summary
+.sp
+After using one of the above methods to open simple_shell, the user will be presented with a prompt ($ ). The user's input will be recorded and submitted after the user presses <ENTER>. The requested command(s) and any argument(s) will be executed, if possible. The user can provide only the command and allow simple_shell to search for the executable, or the user can provide an absolute path to the executable.
+.sp
+.B Operation
+.sp
+Whenever the user submits their input, simple_shell will then tokenize the commands and arguments provided. After tokenization, simple_shell will first check if the command token is an alias. If it is an alias, the command is expanded to its aliased value.
+.sp
+If the command is not an alias, simple_shell then checks if the command is a builtin. If it's not a builtin, simple_shell will append the command to the end of every directory in the user's PATH environment variable. It will then scan all those directories in the PATH to see if the executable exists. If the executable exists, simple_shell will then run the located executable.
+.sp
+If it's not a builtin, and simple_shell doesn't find the executable in the PATH, simple_shell will warn the user that the command was not found, indicating it was an invalid command, and then print the prompt ($ ) again.
+.sp
+.B Available Builtins
+.sp
+The list of builtins is as follows:
+.B exit,
+.B env
+.sp
+.B exit
+- terminates the current process running the shell. As of this writing, exit is not able to take arguments for a status integer to return.
+.sp
+.B env
+- prints the environment of the shell, obtained from the *envp[] array provided to main.
+.SH OPTIONS
+Simple_shell does not currently take any options. Our team is hard at work building this functionality and will release the update after extensive testing is complete and no bugs are found.
+.SH EXIT STATUS
+Simple_shell has multiple exit statuses to indicate the state of the program when it terminated.
+.sp
+If simple_shell runs and terminates successfully, it will return the exit status of the previous command, typically 0. If an error is encountered during the course of the program, the exit status will be set to a non-zero integer.
+.sp
+Once the functionality has been added, the exit builtin will be able to take a numeric argument and return that as the exit status. This feature is currently still in development.
+.SH ENVIRONMENT
+.B PATH
+- user's list of directories to search for executables.
+.sp
+.B PS1
+- prompt string displayed to the user during the course of shell execution. By default, this string is ($ ).
+.sp
+.SH CONFORMING TO
+This simple_shell conforms to all Holberton School "Betty" style specifications and requirements. This style closely resembles the Linux Kernel coding style with some slight variations. "Betty" also aligns closely with C89/ANSI C.
+.sp
+.SH NOTES
+This version (1.0) of simple_shell provides basic functionality to the user. In subsequent updates, more features will be added to more closely emulate /bin/sh, after thorough testing and bug squashing.
+.SH AUTHOR
+Written by Jose Cruz Ruiz and Colson Scott.
+.SH BUGS
+No known bugs. If found, please report to the authors:
+.sp
+Jose Cruz Ruiz: <jose.cruz-ruiz@holbertonschool.com>
+.sp
+Colson Scott: <colson.scott@holbertonschool.com>
+.sp
+.SH EXAMPLE
+.B Interactive mode
+.sp
+-> $ ls -l
+.sp
+.B Non-interactive mode
+.sp
+-> Executable in cwd - "echo ls -l" | ./hsh
+.sp
+-> Executable in bin - "echo ls -l" | /bin/hsh
+.SH SEE ALSO
+sh(1)
