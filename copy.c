@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * main - run UNIX simple shell command interpreter
  * @argc: number of arguments provided to main
@@ -23,23 +22,32 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		line_num++;
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
-			printf("$ ");
+			_puts("$ ");
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
+		{
+			free(buf);
+			buf = NULL;
 			break;
-		if ((strcmp(buf, "\n") == 0)) /* Start over if buf is just '\n' */
+		}
+		path = make_av(av, buf);			 /* Make argv[] for next exec */
+		if ((_strncmp(av[0], "\n", 1) == 0)) /* Start over if buf is just '\n' */
 			continue;
-		if (strcmp(buf, "env") == 0)
+		if (_strncmp(av[0], "exit", 4) == 0)
+		{
+			free(buf);
+			exit(status);
+		}
+		if (_strncmp(av[0], "env", 3) == 0)
 		{
 			print_env(envp);
+			free(buf);
+			buf = NULL;
 			continue;
 		}
-		if (strncmp(buf, "exit", 4) == 0)
-			exit(status);
-		path = make_av(av, buf); /* Make argv[] for next exec */
 		if (path == NULL)
 		{
 			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
-			status = 127;
+			status = 2;
 			continue;
 		}
 		child_pid = fork(); /* fork if command is valid */
@@ -48,6 +56,8 @@ int main(int argc, char *argv[], char *envp[])
 			perror("fork");
 			free(buf);
 			buf = NULL;
+			free(path);
+			path = NULL;
 			exit(EXIT_FAILURE);
 		}
 		else if (child_pid == 0)
@@ -57,6 +67,7 @@ int main(int argc, char *argv[], char *envp[])
 				perror("execve");
 				free(buf);
 				buf = NULL;
+				/* NEED TO FREE PATH AND NULL IT HERE?! */
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -65,12 +76,13 @@ int main(int argc, char *argv[], char *envp[])
 			if (wait(&status) == -1)
 				perror("wait");
 		}
+		/* DOUBLE CHECK NO PARAMETERS THAT FAIL */
+		/* FOLLOWING CODE CHECK BEFORE MOVING ON!!!! */
 		free(path);
 		path = NULL;
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
-		putchar('\n');
-	free(buf);
+		_putchar('\n');
 	exit(status);
 }
 
@@ -83,24 +95,15 @@ char *find_right_path(char *command)
 {
 	struct stat st;
 	char *path = NULL, *dir = NULL, *ptr = NULL, *pwd = NULL;
-	size_t size = strlen(command) + 1;
-	int i = 0;
+	size_t size = _strlen(command) + 1;
+	int i = 0, path_size = 0;
 
-	/*CHECK LATER WHAT HAPPENS IF COMMAND IS NULL*/
 	if (command == NULL)
 		return (NULL);
-
-	path = strdup(command);
-
-	if (stat(path, &st) == 0)
-		return (path);
-
 	dir = _getenv("PATH");
-
 	while (*dir != '=')
 		dir++;
 	dir++;
-
 	if (*dir == ':')
 	{
 		pwd = _getenv("PWD");
@@ -109,24 +112,28 @@ char *find_right_path(char *command)
 		if (stat(path, &st) == 0)
 			return (path);
 	}
-
 	for (; *dir != '\0'; dir++)
 	{
 		ptr = dir;
 		for (i = 0; *dir != ':' && *dir != '\0'; i++, dir++)
 			;
-
-		size = (i + strlen(command) + 2);
-		path = realloc(path, size);
+		size = (i + _strlen(command) + 2);
+		path = _realloc(path, path_size, size);
 		if (path == NULL)
 			return (NULL);
-		strncpy(path, ptr, i);
+		_strncpy(path, ptr, i);
 		path[i] = '\0';
-		path = strcat(strcat(path, "/"), command);
+		path = _strcat(_strcat(path, "/"), command);
 
 		if (stat(path, &st) == 0)
 			return (path);
+
+		path_size = _strlen(path);
 	}
+	path = _realloc(path, path_size, _strlen(command) + 1);
+	path = _strncpy(path, command, _strlen(command) + 1);
+	if (stat(path, &st) == 0)
+		return (path);
 	free(path);
 	return (NULL);
 }
@@ -138,7 +145,6 @@ char *find_right_path(char *command)
  **/
 char *_getenv(char *name)
 {
-	extern char **environ;
 	size_t i, j;
 
 	for (i = 0; environ[i]; i++)
@@ -147,7 +153,7 @@ char *_getenv(char *name)
 			if (environ[i][j] != name[j])
 				break;
 
-		if (j == strlen(name) && environ[i][j - 1] == name[j - 1])
+		if (j == _strlen(name) && environ[i][j - 1] == name[j - 1])
 			break;
 	}
 	return (environ[i]);
@@ -167,27 +173,19 @@ char *make_av(char *av[], char *line)
 	memset(av, 0, 1024);
 	for (; line[i] != '\0'; i++, j++)
 	{
-		while (line[i] == ' ' || line[i] == '\n')
+		while (line[i] == ' ' || (j != 0 && line[i] == '\n'))
 			i++;
 		ptr = line + i;
-		while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
-			i++;
-		if (line[i] != '\0')
+		if (j != 0 || line[i] != '\n')
+		{
+			while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
+				i++;
 			line[i] = '\0';
-		else
-		{
-			break;
 		}
-		av[j] = ptr;
+		if (*ptr)
+			av[j] = ptr;
 		if (j == 0)
-		{
 			path_ptr = find_right_path(ptr);
-			if (av[j] == NULL)
-			{
-				dprintf(STDERR_FILENO, "%s: command not found\n", ptr);
-				break;
-			}
-		}
 	}
 	av[j] = NULL;
 	return (path_ptr);
