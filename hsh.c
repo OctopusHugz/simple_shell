@@ -23,38 +23,37 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		line_num++;
 		if (isatty(STDIN_FILENO) == 1) /* Print $ if stdin is terminal */
-			printf("$ ");
+			_puts("$ ");
 		if (getline(&buf, &size, stdin) == -1) /* Copy command line to buf */
 		{
-			/*free(buf);
-			buf = NULL;*/
+			free(buf);
+			buf = NULL;
 			break;
 		}
-		if ((strcmp(buf, "\n") == 0)) /* Start over if buf is just '\n' */
+		if ((_strncmp(buf, "\n", 1) == 0)) /* Start over if buf is just '\n' */
 			continue;
-		if (strcmp(buf, "env") == 0)
-		{
-			print_env(envp);
-			/*free(buf);
-			buf = NULL;
-			free(path);
-			path = NULL;*/
-			continue;
-		}
-		if (strncmp(buf, "exit", 4) == 0)
+		path = make_av(av, buf); /* Make argv[] for next exec */
+		if ((_strncmp(buf, "exit", 4) == 0))
 		{
 			/*if (av[1])
 				status = atoi(av[1]);*/
-			/*free(buf);
-			buf = NULL;*/
+			free(buf);
+			buf = NULL;
 			exit(status);
 		}
-		path = make_av(av, buf); /* Make argv[] for next exec */
-		/* ADD FUNCTION HERE TO CHECK IF BUILTIN EXIT, ENV, SETENV, OR UNSETENV */
+		if ((_strncmp(buf, "env", 3) == 0))
+		{
+			print_env(envp);
+			free(buf);
+			buf = NULL;
+			free(path);
+			path = NULL;
+			continue;
+		}
 		if (path == NULL)
 		{
 			printf("%s: %d: %s: not found\n", argv[0], line_num, av[0]);
-			status = 127;
+			status = 2;
 			continue;
 		}
 		child_pid = fork(); /* fork if command is valid */
@@ -63,6 +62,8 @@ int main(int argc, char *argv[], char *envp[])
 			perror("fork");
 			free(buf);
 			buf = NULL;
+			free(path);
+			path = NULL;
 			exit(EXIT_FAILURE);
 		}
 		else if (child_pid == 0)
@@ -72,6 +73,7 @@ int main(int argc, char *argv[], char *envp[])
 				perror("execve");
 				free(buf);
 				buf = NULL;
+				/* NEED TO FREE PATH AND NULL IT HERE?! */
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -86,8 +88,7 @@ int main(int argc, char *argv[], char *envp[])
 		path = NULL;
 	}
 	if (isatty(STDIN_FILENO) == 1) /* Print newline before exiting */
-		putchar('\n');
-	free(buf);
+		_putchar('\n');
 	exit(status);
 }
 
@@ -100,24 +101,16 @@ char *find_right_path(char *command)
 {
 	struct stat st;
 	char *path = NULL, *dir = NULL, *ptr = NULL, *pwd = NULL;
-	size_t size = strlen(command) + 1;
-	int i = 0;
+	size_t size = _strlen(command) + 1;
+	int i = 0, path_size = 0;
 
-	/*CHECK LATER WHAT HAPPENS IF COMMAND IS NULL*/
+	/*echo*/
 	if (command == NULL)
 		return (NULL);
-
-	path = strdup(command);
-
-	if (stat(path, &st) == 0)
-		return (path);
-
 	dir = _getenv("PATH");
-
 	while (*dir != '=')
 		dir++;
 	dir++;
-
 	if (*dir == ':')
 	{
 		pwd = _getenv("PWD");
@@ -126,24 +119,29 @@ char *find_right_path(char *command)
 		if (stat(path, &st) == 0)
 			return (path);
 	}
-
 	for (; *dir != '\0'; dir++)
 	{
 		ptr = dir;
 		for (i = 0; *dir != ':' && *dir != '\0'; i++, dir++)
 			;
 
-		size = (i + strlen(command) + 2);
-		path = realloc(path, size);
+		size = (i + _strlen(command) + 2);
+		path = _realloc(path, path_size, size);
 		if (path == NULL)
 			return (NULL);
-		strncpy(path, ptr, i);
+		_strncpy(path, ptr, i);
 		path[i] = '\0';
-		path = strcat(strcat(path, "/"), command);
+		path = _strcat(_strcat(path, "/"), command);
 
 		if (stat(path, &st) == 0)
 			return (path);
+
+		path_size = _strlen(path);
 	}
+	path = _realloc(path, path_size, _strlen(command) + 1);
+	path = _strncpy(path, command, _strlen(command) + 1);
+	if (stat(path, &st) == 0)
+		return (path);
 	free(path);
 	return (NULL);
 }
@@ -155,7 +153,6 @@ char *find_right_path(char *command)
  **/
 char *_getenv(char *name)
 {
-	extern char **environ;
 	size_t i, j;
 
 	for (i = 0; environ[i]; i++)
@@ -164,7 +161,7 @@ char *_getenv(char *name)
 			if (environ[i][j] != name[j])
 				break;
 
-		if (j == strlen(name) && environ[i][j - 1] == name[j - 1])
+		if (j == _strlen(name) && environ[i][j - 1] == name[j - 1])
 			break;
 	}
 	return (environ[i]);
