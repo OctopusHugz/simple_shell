@@ -28,4 +28,4 @@ Simple_shell will inform the user of the status of the program after running. It
 **2** - misuse of shell builtins\
 **126** - command invoked cannot execute\
 **127** - command not found\
-**128** - invalid argument to exit\
+**128** - invalid argument to exit
