@@ -1,4 +1,5 @@
-Simple Shell
+# **Simple Shell**
+
 Simple_shell is a basic reproduction of the /bin/sh shell implemented with custom functions built during the course of Holberton School Trimester 0. It allows the user to input commands for the shell to execute, either internally or externally. It runs commands and then prompts the user for more input. This is the default behavior until the shell is terminated.
 
 Simple_shell can be run both in interactive mode and non-interactive mode. Interactive mode indicates that the shell is connected to the STDIN and prints the prompt ($ ) accordingly. If run in non-interactive mode, no prompt ($ ) is printed. Also, the command and arguments must be piped into the shell at the command line.
