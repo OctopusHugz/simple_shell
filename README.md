@@ -12,9 +12,9 @@ Simple_shell will tokenize the user's input, then check if the command they ente
 
 Simple_shell can be run both in interactive mode and non-interactive mode. Interactive mode indicates that the shell is connected to the STDIN and prints the prompt ($ ) accordingly. If run in non-interactive mode, no prompt ($ ) is printed. Also, the command and arguments must be piped into the shell at the command line.
 
-`./hsh` - if the executable is in the current working directory
-`/bin/hsh` - if the executable is not in the current working directory, copy to /bin directory and run from there
+`./hsh` - if the executable is in the current working directory\
+`/bin/hsh` - if the executable is not in the current working directory, copy to /bin directory and run from there\
 
-`$ ls` - interactive mode
-`echo "ls" | ./hsh` - non-interactive mode
+`$ ls` - interactive mode\
+`echo "ls" | ./hsh` - non-interactive mode\
 `echo "ls" | /bin/hsh` - non-interactive mode
