@@ -72,6 +72,7 @@ int fork_exec(char *buf, char *path, char *av[4096], char *envp[])
 	{
 		if (wait(&status) == -1)
 			perror("wait");
+		/* NEED TO ADD FREES AND EXIT AFTER THIS PERROR? */
 		/* if (WIFEXITED(status)) */
 		/* printf("Child exit status: %d\n", WEXITSTATUS(status)); */
 	}

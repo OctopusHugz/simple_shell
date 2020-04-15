@@ -43,4 +43,7 @@ int built_in_check(char *buf, char *path, char *av[4096], char *envp[]);
 
 void print_number(int n);
 
+int print_error(char *path, char *argv[], int line_num,
+				char *av[], int status);
+
 #endif /* SHELL_H */
