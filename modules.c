@@ -1,6 +1,43 @@
 #include "shell.h"
 
 /**
+ * make_av - make argument array for an execve from a string
+ * @av: pointer to argument array to be filled
+ * @line: line to be turned into arguments
+ * Return: void
+ **/
+char *make_av(char *av[], char *line)
+{
+	int i = 0, j = 0, k = 0;
+	char *ptr = NULL, *path_ptr = NULL;
+
+	/* memset(av, 0, 4096); */
+	while (k < 4096)
+	{
+		av[k] = 0;
+		k++;
+	}
+	for (; line[i] != '\0'; i++, j++)
+	{
+		while (line[i] == ' ')
+			i++;
+		ptr = line + i;
+		if (j != 0 || line[i] != '\n')
+		{
+			while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
+				i++;
+			line[i] = '\0';
+		}
+		if (*ptr)
+			av[j] = ptr;
+		if (j == 0)
+			path_ptr = find_right_path(ptr);
+	}
+	av[j] = NULL;
+	return (path_ptr);
+}
+
+/**
  * find_right_path - finds the location of an exectuable in the PATH
  * @command: command exectuable to find in the PATH
  * Return: path found where command resides, or the command if no path found
@@ -68,38 +105,6 @@ char *_getenv(char *name)
 			break;
 	}
 	return (environ[i]);
-}
-
-/**
- * make_av - make argument array for an execve from a string
- * @av: pointer to argument array to be filled
- * @line: line to be turned into arguments
- * Return: void
- **/
-char *make_av(char *av[], char *line)
-{
-	int i = 0, j = 0;
-	char *ptr = NULL, *path_ptr = NULL;
-
-	memset(av, 0, 1024);
-	for (; line[i] != '\0'; i++, j++)
-	{
-		while (line[i] == ' ')
-			i++;
-		ptr = line + i;
-		if (j != 0 || line[i] != '\n')
-		{
-			while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
-				i++;
-			line[i] = '\0';
-		}
-		if (*ptr)
-			av[j] = ptr;
-		if (j == 0)
-			path_ptr = find_right_path(ptr);
-	}
-	av[j] = NULL;
-	return (path_ptr);
 }
 
 /**

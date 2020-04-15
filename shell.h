@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -37,5 +36,11 @@ void _puts(char *str);
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 
 void sigint_handler(int signo);
+
+int fork_exec(char *buf, char *path, char *av[4096], char *envp[]);
+
+int built_in_check(char *buf, char *path, char *av[4096], char *envp[]);
+
+void print_number(int n);
 
 #endif /* SHELL_H */
