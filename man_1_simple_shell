@@ -45,6 +45,24 @@ Simple_shell has multiple exit statuses to indicate the state of the program whe
 .sp
 If simple_shell runs and terminates successfully, it will return the exit status of the previous command, typically 0. If an error is encountered during the course of the program, the exit status will be set to a non-zero integer.
 .sp
+.B 0
+- no errors were encountered during process execution
+.sp
+.B 1
+- catchall for general errors
+.sp
+.B 2
+- misuse of shell builtins
+.sp
+.B 126
+- command invoked cannot execute
+.sp
+.B 127
+- command not found
+.sp
+.B 128
+- invalid argument to exit
+.sp
 Once the functionality has been added, the exit builtin will be able to take a numeric argument and return that as the exit status. This feature is currently still in development.
 .SH ENVIRONMENT
 .B PATH
