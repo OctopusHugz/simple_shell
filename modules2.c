@@ -29,7 +29,7 @@ int built_in_check(char *buf, char *path, char *av[4096], char *envp[])
 		path = NULL;
 		exit(status);
 	}
-	return (status);
+	return (-1);
 }
 
 /**

@@ -11,7 +11,6 @@ char *make_av(char *av[], char *line)
 	int i = 0, j = 0, k = 0;
 	char *ptr = NULL, *path_ptr = NULL;
 
-	/* memset(av, 0, 4096); */
 	while (k < 4096)
 	{
 		av[k] = 0;
@@ -30,7 +29,7 @@ char *make_av(char *av[], char *line)
 		}
 		if (*ptr)
 			av[j] = ptr;
-		if (j == 0)
+		if (j == 0 && (_strncmp(ptr, "env", 3) != 0))
 			path_ptr = find_right_path(ptr);
 	}
 	av[j] = NULL;
