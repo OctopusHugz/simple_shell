@@ -46,4 +46,6 @@ void print_number(int n);
 int print_error(char *path, char *argv[], int line_num,
 				char *av[], int status);
 
+char *stat_access_check(char *path, struct stat *st);
+
 #endif /* SHELL_H */

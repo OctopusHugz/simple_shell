@@ -30,15 +30,10 @@ int main(int argc, char *argv[], char *envp[])
 		path = make_av(av, buf);
 		if ((_strncmp(av[0], "\n", 1) == 0))
 			continue;
+		if (print_error(path, argv, line_num, av, status) >= 126)
+			continue;
 		if (built_in_check(buf, path, av, envp) == 0)
 			continue;
-		if (path == NULL)
-		{
-			_puts(argv[0]), _puts(": "), print_number(line_num);
-			_puts(": "), _puts(av[0]), _puts(": not found\n");
-			status = 127;
-			continue;
-		}
 		fork_exec(buf, path, av, envp);
 	}
 	if (isatty(STDIN_FILENO) == 1)
