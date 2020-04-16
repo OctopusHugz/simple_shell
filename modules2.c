@@ -61,23 +61,23 @@ int fork_exec(char *buf, char *path, char *av[4096], char *envp[])
 	child_pid = fork();
 	if (child_pid == -1)
 	{
-		perror("fork");
 		free(buf);
 		buf = NULL;
 		free(path);
 		path = NULL;
 		_exit(errno);
+		/* perror("fork"); */
 	}
 	else if (child_pid == 0)
 	{
 		if (execve(path, av, envp) == -1)
 		{
-			perror("execve");
 			free(buf);
 			buf = NULL;
 			free(path);
 			path = NULL;
 			_exit(errno);
+			/* perror("execve"); */
 		}
 	}
 	else
