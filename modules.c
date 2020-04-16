@@ -44,8 +44,7 @@ char *make_av(char *av[], char *line)
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = _getenv("PATH"),
-		 *ptr = NULL, *pwd = NULL, *access_string;
+	char *path = NULL, *dir = _getenv("PATH"), *ptr = NULL, *pwd = NULL;
 	size_t size = _strlen(command) + 1;
 	int i = 0, path_size = 0;
 
@@ -57,7 +56,7 @@ char *find_right_path(char *command)
 		pwd = _getenv("PWD"), path = getcwd(path, _strlen(pwd));
 		path = _strcat(_strcat(path, "/"), command);
 		if (stat(path, &st) == 0)
-			return (access_string = access_check(path));
+			return (access_check(path));
 	}
 	for (; *dir != '\0'; dir++)
 	{
@@ -71,13 +70,13 @@ char *find_right_path(char *command)
 		_strncpy(path, ptr, i), path[i] = '\0';
 		path = _strcat(_strcat(path, "/"), command);
 		if (stat(path, &st) == 0)
-			return (access_string = access_check(path));
+			return (access_check(path));
 		path_size = _strlen(path);
 	}
 	path = _realloc(path, path_size, _strlen(command) + 1);
 	path = _strncpy(path, command, _strlen(command) + 1);
 	if (stat(path, &st) == 0)
-		return (access_string = access_check(path));
+		return (access_check(path));
 	free(path);
 	return (NULL);
 }
