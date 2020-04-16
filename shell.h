@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <limits.h>
+#include <errno.h>
 
 typedef void (*sighandler_t)(int);
 
