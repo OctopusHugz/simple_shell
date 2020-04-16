@@ -40,3 +40,18 @@ void _puts(char *str)
 		_putchar(str[i]);
 	}
 }
+/**
+ * slash_check - checks if there is a slash in a string
+ * @command: command to check
+ * Return: 1 if no slash | 0 if slash is found
+ **/
+int slash_check(char *command)
+{
+	int i, slash_check = 1;
+
+	for (i = 0; command[i] && slash_check; i++)
+		if (command[i] == '/')
+			slash_check = 0;
+
+	return (slash_check);
+}

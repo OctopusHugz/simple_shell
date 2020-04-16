@@ -31,8 +31,7 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		if (built_in_check(buf, path, av, envp, status) == 0)
 			continue;
-		status = print_error(path, argv, line_num, av, status);
-		if (status >= 126)
+		if (print_error(path, argv, line_num, av, status) >= 126)
 			continue;
 		fork_exec(buf, path, av, envp);
 	}

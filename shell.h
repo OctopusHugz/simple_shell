@@ -49,4 +49,6 @@ int print_error(char *path, char *argv[], int line_num,
 
 char *access_check(char *path);
 
+int slash_check(char *command);
+
 #endif /* SHELL_H */
