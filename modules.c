@@ -44,22 +44,20 @@ char *make_av(char *av[], char *line)
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = _getenv("PATH"), *ptr = NULL, *pwd = NULL;
+	char *path = NULL, *dir = _getenv("PATH"),
+		 *ptr = NULL, *pwd = NULL, *access_string;
 	size_t size = _strlen(command) + 1;
 	int i = 0, path_size = 0;
 
-	if (command == NULL)
-		return (NULL);
 	while (*dir != '=')
 		dir++;
 	dir++;
 	if (*dir == ':')
 	{
-		pwd = _getenv("PWD");
-		path = getcwd(path, _strlen(pwd));
+		pwd = _getenv("PWD"), path = getcwd(path, _strlen(pwd));
 		path = _strcat(_strcat(path, "/"), command);
 		if (stat(path, &st) == 0)
-			return (path);
+			return (access_string = access_check(path));
 	}
 	for (; *dir != '\0'; dir++)
 	{
@@ -70,17 +68,16 @@ char *find_right_path(char *command)
 		path = _realloc(path, path_size, size);
 		if (path == NULL)
 			return (NULL);
-		_strncpy(path, ptr, i);
-		path[i] = '\0';
+		_strncpy(path, ptr, i), path[i] = '\0';
 		path = _strcat(_strcat(path, "/"), command);
 		if (stat(path, &st) == 0)
-			return (path);
+			return (access_string = access_check(path));
 		path_size = _strlen(path);
 	}
 	path = _realloc(path, path_size, _strlen(command) + 1);
 	path = _strncpy(path, command, _strlen(command) + 1);
 	if (stat(path, &st) == 0)
-		return (path);
+		return (access_string = access_check(path));
 	free(path);
 	return (NULL);
 }
@@ -123,14 +120,18 @@ void print_env(char *envp[])
 }
 
 /**
- * sigint_handler - handles SIGINT (CTRL-C) signal for shell
- * @signum: signal number caught by signal, 2 for SIGINT
+ * access_check - checks if calling process
+ * has permissions to file found in PATH
+ * @path: directory where executable was found
+ * Return: path if correct perms, bad perms if incorrect perms
  **/
-void sigint_handler(int signum)
+char *access_check(char *path)
 {
-	if (signum == 2)
-	{
-		_putchar('\n');
-		_puts("$ ");
-	}
+	char *perms = "Bad perms";
+
+	if (access(path, X_OK) == 0)
+		return (path);
+	free(path);
+	path = NULL;
+	return (perms);
 }

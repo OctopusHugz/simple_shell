@@ -39,13 +39,14 @@ void sigint_handler(int signo);
 
 int fork_exec(char *buf, char *path, char *av[4096], char *envp[]);
 
-int built_in_check(char *buf, char *path, char *av[4096], char *envp[]);
+int built_in_check(char *buf, char *path,
+				   char *av[4096], char *envp[], int status);
 
 void print_number(int n);
 
 int print_error(char *path, char *argv[], int line_num,
 				char *av[], int status);
 
-char *stat_access_check(char *path, struct stat *st);
+char *access_check(char *path);
 
 #endif /* SHELL_H */
