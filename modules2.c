@@ -24,7 +24,7 @@ int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
 	{
 		if (av[1])
 		{
-			status = atoi(av[1]);
+			status = _atoi(av[1]);
 			if (status < 0 || status > INT_MAX || exit_parser(av[1]))
 			{
 				_puts(argv[0]), _puts(": "), print_number(line_num);

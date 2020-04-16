@@ -53,4 +53,6 @@ int slash_check(char *command);
 
 int exit_parser(char *e_status);
 
+int _atoi(char *s);
+
 #endif /* SHELL_H */
