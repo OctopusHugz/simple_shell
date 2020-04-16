@@ -11,7 +11,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	char *buf = NULL, *av[4096], *path;
 	size_t size = 0;
-	int status = 0, line_num = 0;
+	int status = 0, line_num = 0, bi_status = 0;
 
 	(void)argc;
 	while (1)
@@ -29,8 +29,12 @@ int main(int argc, char *argv[], char *envp[])
 		path = make_av(av, buf);
 		if ((_strncmp(av[0], "\n", 1) == 0))
 			continue;
-		if (built_in_check(buf, path, av, envp, status) == 0)
+		bi_status = built_in_check(buf, path, av, argv, envp, status, line_num);
+		if (bi_status == 0 || bi_status == 1)
+		{
+			status = 2;
 			continue;
+		}
 		else
 			status = 0;
 		status = print_error(path, argv, line_num, av);

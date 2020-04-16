@@ -64,3 +64,21 @@ char *_strcat(char *dest, char *src)
 	dest[i] = '\0';
 	return (dest);
 }
+
+/**
+ * exit_parser - parses a string for non-digits
+ * @e_status: string provided to exit as an exit status
+ *
+ * Return: 1 if non-digits found, 0 if not
+ **/
+int exit_parser(char *e_status)
+{
+	int i;
+
+	for (i = 0; e_status[i]; i++)
+	{
+		if (e_status[i] < '0' || e_status[i] > '9')
+			return (1);
+	}
+	return (0);
+}

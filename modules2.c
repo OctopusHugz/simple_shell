@@ -6,12 +6,14 @@
  * @buf: input string provided by the user
  * @path: directory where executable was found
  * @av: array of strings containing tokenized commands and arguments from buf
+ * @argv: array of strings containing arguments to main
  * @envp: array of strings containing environment variables
  * @status: current status of program
+ * @line_num: line number of shell
  * Return: exit status
  **/
-int built_in_check(char *buf, char *path, char *av[4096],
-				   char *envp[], int status)
+int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
+				   char *envp[], int status, int line_num)
 {
 	if (_strncmp(av[0], "env", 3) == 0)
 	{
@@ -20,9 +22,19 @@ int built_in_check(char *buf, char *path, char *av[4096],
 	}
 	if (_strncmp(av[0], "exit", 4) == 0)
 	{
-		/* CHECK IF STATUS IS NOT A NUMBER OR OUT OF RANGE */
 		if (av[1])
+		{
 			status = atoi(av[1]);
+			if (status < 0 || exit_parser(av[1]))
+			{
+				_puts(argv[0]), _puts(": "), print_number(line_num);
+				_puts(": "), _puts(av[0]), _puts(": Illegal number: ");
+				_puts(av[1]), _putchar('\n');
+				return (1);
+			}
+			if (status > 255)
+				status = status % 256;
+		}
 		free(buf);
 		buf = NULL;
 		free(path);
