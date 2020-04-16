@@ -65,8 +65,8 @@ int fork_exec(char *buf, char *path, char *av[4096], char *envp[])
 		buf = NULL;
 		free(path);
 		path = NULL;
+		perror("fork");
 		_exit(errno);
-		/* perror("fork"); */
 	}
 	else if (child_pid == 0)
 	{
@@ -76,8 +76,8 @@ int fork_exec(char *buf, char *path, char *av[4096], char *envp[])
 			buf = NULL;
 			free(path);
 			path = NULL;
+			perror("execve");
 			_exit(errno);
-			/* perror("execve"); */
 		}
 	}
 	else
