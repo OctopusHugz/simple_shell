@@ -44,37 +44,36 @@ char *make_av(char *av[], char *str)
 char *find_right_path(char *command)
 {
 	struct stat st;
-	char *path = NULL, *dir = _getenv("PATH"), *ptr = NULL, *pwd = NULL;
-	size_t size = _strlen(command) + 1;
-	int i = 0, path_size = 0, path_check = slash_check(command);
+	char *path = NULL, *dir = NULL, *tmp = NULL,
+		 *ptr = _getenv("PATH") + 5, *cwd = _getenv("PWD") + 4;
+	size_t com_len = _strlen(command), dir_len = 0,
+		   old_size = 0, new_size = com_len + 1;
+	int path_check = slash_check(command);
 
-	while (*dir != '=')
-		dir++;
-	dir++;
-	if (*dir == ':')
+	while (*ptr != '\0' && path_check)
 	{
-		pwd = _getenv("PWD"), path = getcwd(path, _strlen(pwd));
-		path = _strcat(_strcat(path, "/"), command);
-		if (stat(path, &st) == 0)
-			return (access_check(path));
-	}
-	for (; *dir != '\0' && path_check; dir++)
-	{
-		ptr = dir;
-		for (i = 0; *dir != ':' && *dir != '\0'; i++, dir++)
+		tmp = ptr;
+		if (*ptr == ':')
+			ptr = cwd;
+		dir = ptr;
+		for (dir_len = 0; *ptr != ':' && *ptr != '\0'; dir_len++, ptr++)
 			;
-		size = (i + _strlen(command) + 2);
-		path = _realloc(path, path_size, size);
+		new_size = (dir_len + com_len + 2);
+		path = _realloc(path, old_size, new_size);
 		if (path == NULL)
 			return (NULL);
-		_strncpy(path, ptr, i), path[i] = '\0';
+		_strncpy(path, dir, dir_len);
+		path[dir_len] = '\0';
 		path = _strcat(_strcat(path, "/"), command);
 		if (stat(path, &st) == 0)
 			return (access_check(path));
-		path_size = _strlen(path);
+		old_size = _strlen(path) + 1;
+		if (*tmp == ':')
+			ptr = tmp;
+		ptr++;
 	}
-	path = _realloc(path, path_size, _strlen(command) + 1);
-	path = _strncpy(path, command, _strlen(command) + 1);
+	path = _realloc(path, old_size, com_len + 1);
+	path = _strncpy(path, command, com_len + 1);
 	if (stat(path, &st) == 0)
 		return (access_check(path));
 	free(path);
