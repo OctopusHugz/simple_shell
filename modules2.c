@@ -25,14 +25,14 @@ int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
 		if (av[1])
 		{
 			status = atoi(av[1]);
-			if (status < 0 || exit_parser(av[1]))
+			if (status < 0 || status > INT_MAX || exit_parser(av[1]))
 			{
 				_puts(argv[0]), _puts(": "), print_number(line_num);
 				_puts(": "), _puts(av[0]), _puts(": Illegal number: ");
 				_puts(av[1]), _putchar('\n');
 				return (1);
 			}
-			if (status > 255)
+			if (status > 255 && status <= INT_MAX)
 				status = status % 256;
 		}
 		free(buf);

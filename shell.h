@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <limits.h>
 
 typedef void (*sighandler_t)(int);
 
