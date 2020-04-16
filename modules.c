@@ -113,7 +113,8 @@ void print_env(char *envp[])
 
 	while (envp[i])
 	{
-		printf("%s\n", envp[i]);
+		_puts(envp[i]);
+		_putchar('\n');
 		i++;
 	}
 }
