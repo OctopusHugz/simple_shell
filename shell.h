@@ -17,7 +17,7 @@ char *_getenv(char *name);
 
 char *find_right_path(char *command);
 
-char *make_av(char *av[], char *line);
+char *make_av(char *av[], char *str);
 
 void print_env(char *envp[]);
 

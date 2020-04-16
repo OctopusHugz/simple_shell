@@ -3,10 +3,10 @@
 /**
  * make_av - make argument array for an execve from a string
  * @av: pointer to argument array to be filled
- * @line: line to be turned into arguments
+ * @str: line to be turned into arguments
  * Return: void
  **/
-char *make_av(char *av[], char *line)
+char *make_av(char *av[], char *str)
 {
 	int i = 0, j = 0, k = 0;
 	char *ptr = NULL, *path_ptr = NULL;
@@ -16,16 +16,16 @@ char *make_av(char *av[], char *line)
 		av[k] = 0;
 		k++;
 	}
-	for (; line[i] != '\0'; i++, j++)
+	for (; str[i] != '\0'; i++, j++)
 	{
-		while (line[i] == ' ')
+		while (str[i] == ' ' || str[i] == '\t')
 			i++;
-		ptr = line + i;
-		if (j != 0 || line[i] != '\n')
+		ptr = str + i;
+		if (j != 0 || str[i] != '\n')
 		{
-			while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0')
+			while (str[i] != ' ' && str[i] != '\n' && str[i] != '\0' && str[i] != '\t')
 				i++;
-			line[i] = '\0';
+			str[i] = '\0';
 		}
 		if (*ptr)
 			av[j] = ptr;
