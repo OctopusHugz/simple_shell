@@ -7,7 +7,7 @@
  * @path: directory where executable was found
  * @av: array of strings containing tokenized commands and arguments from buf
  * @envp: array of strings containing environment variables
- * @status: status of the shell when exiting
+ * @status: current status of program
  * Return: exit status
  **/
 int built_in_check(char *buf, char *path, char *av[4096],
@@ -16,18 +16,17 @@ int built_in_check(char *buf, char *path, char *av[4096],
 	if (_strncmp(av[0], "env", 3) == 0)
 	{
 		print_env(envp);
-		return (status);
+		return (EXIT_SUCCESS);
 	}
 	if (_strncmp(av[0], "exit", 4) == 0)
 	{
-		/* if (av[1]) */
-		/* status = _atoi(av[1]); */
 		/* CHECK IF STATUS IS NOT A NUMBER OR OUT OF RANGE */
+		if (av[1])
+			status = atoi(av[1]);
 		free(buf);
 		buf = NULL;
 		free(path);
 		path = NULL;
-		/* NEED TO CAPTURE EXIT STATUS FROM EXIT AND EXIT WITH THAT */
 		exit(status);
 	}
 	return (-1);
@@ -73,9 +72,8 @@ int fork_exec(char *buf, char *path, char *av[4096], char *envp[])
 	{
 		if (wait(&status) == -1)
 			perror("wait");
-		/* NEED TO ADD FREES AND EXIT AFTER THIS PERROR? */
-		/* if (WIFEXITED(status)) */
-		/* printf("Child exit status: %d\n", WEXITSTATUS(status)); */
+		if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
 	}
 	free(path);
 	path = NULL;
@@ -106,26 +104,23 @@ void print_number(int n)
  * @argv: array of strings containing arguments to main
  * @line_num: line number of shell
  * @av: array of strings containing tokenized commands and arguments from buf
- * @status: status of the shell when exiting
  * Return: exit status
  **/
-int print_error(char *path, char *argv[], int line_num, char *av[], int status)
+int print_error(char *path, char *argv[], int line_num, char *av[])
 {
 	if (path == NULL)
 	{
 		_puts(argv[0]), _puts(": "), print_number(line_num);
 		_puts(": "), _puts(av[0]), _puts(": not found\n");
-		status = 127;
-		return (status);
+		return (127);
 	}
 	if (_strncmp(path, "Bad perms", 8) == 0)
 	{
 		_puts(argv[0]), _puts(": "), print_number(line_num);
 		_puts(": "), _puts(av[0]), _puts(": Permission denied\n");
-		status = 126;
-		return (status);
+		return (126);
 	}
-	return (status);
+	return (EXIT_SUCCESS);
 }
 
 /**

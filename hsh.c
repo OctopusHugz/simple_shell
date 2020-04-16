@@ -31,9 +31,12 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		if (built_in_check(buf, path, av, envp, status) == 0)
 			continue;
-		if (print_error(path, argv, line_num, av, status) >= 126)
+		else
+			status = 0;
+		status = print_error(path, argv, line_num, av);
+		if (status >= 126)
 			continue;
-		fork_exec(buf, path, av, envp);
+		status = fork_exec(buf, path, av, envp);
 	}
 	if (isatty(STDIN_FILENO) == 1)
 		_putchar('\n');
