@@ -27,9 +27,9 @@ int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
 			status = _atoi(av[1]);
 			if (status < 0 || status > INT_MAX || exit_parser(av[1]))
 			{
-				_puts(argv[0]), _puts(": "), print_number(line_num);
-				_puts(": "), _puts(av[0]), _puts(": Illegal number: ");
-				_puts(av[1]), _putchar('\n');
+				err_puts(argv[0]), err_puts(": "), err_print_number(line_num);
+				err_puts(": "), err_puts(av[0]), err_puts(": Illegal number: ");
+				err_puts(av[1]), err_putchar('\n');
 				return (1);
 			}
 			if (status > 255 && status <= INT_MAX)
@@ -122,14 +122,14 @@ int print_error(char *path, char *argv[], int line_num, char *av[])
 {
 	if (path == NULL)
 	{
-		_puts(argv[0]), _puts(": "), print_number(line_num);
-		_puts(": "), _puts(av[0]), _puts(": not found\n");
+		err_puts(argv[0]), err_puts(": "), err_print_number(line_num);
+		err_puts(": "), err_puts(av[0]), err_puts(": not found\n");
 		return (127);
 	}
 	if (!_strncmp(path, "Bad perms", 9))
 	{
-		_puts(argv[0]), _puts(": "), print_number(line_num);
-		_puts(": "), _puts(av[0]), _puts(": Permission denied\n");
+		err_puts(argv[0]), err_puts(": "), err_print_number(line_num);
+		err_puts(": "), err_puts(av[0]), err_puts(": Permission denied\n");
 		return (126);
 	}
 	return (EXIT_SUCCESS);

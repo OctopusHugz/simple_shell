@@ -58,4 +58,10 @@ int _atoi(char *s);
 
 char *get_var(char *var);
 
+int err_putchar(char c);
+
+void err_puts(char *str);
+
+void err_print_number(int n);
+
 #endif /* SHELL_H */
