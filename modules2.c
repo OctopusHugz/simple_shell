@@ -126,7 +126,7 @@ int print_error(char *path, char *argv[], int line_num, char *av[])
 		_puts(": "), _puts(av[0]), _puts(": not found\n");
 		return (127);
 	}
-	if (_strncmp(path, "Bad perms", 8) == 0)
+	if (!_strncmp(path, "Bad perms", 9))
 	{
 		_puts(argv[0]), _puts(": "), print_number(line_num);
 		_puts(": "), _puts(av[0]), _puts(": Permission denied\n");

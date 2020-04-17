@@ -57,3 +57,24 @@ int slash_check(char *command)
 
 	return (slash_check);
 }
+
+/**
+ * get_var - expands an environment variable to its value
+ * @var: variable to find and replace
+ * Return: pointer to value of environment variable
+ **/
+char *get_var(char *var)
+{
+	char *env;
+	size_t var_len = _strlen(var);
+
+	if (var_len == 1)
+		return (var);
+	env = _getenv(var + 1);
+	if (!env)
+		return (NULL);
+	while (*env != '=')
+		env++;
+	env++;
+	return (env);
+}

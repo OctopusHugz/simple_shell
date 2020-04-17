@@ -27,7 +27,7 @@ int main(int argc, char *argv[], char *envp[])
 			break;
 		}
 		path = make_av(av, buf);
-		if ((_strncmp(av[0], "\n", 1) == 0))
+		if ((_strncmp(av[0], "\n", 1) == 0) || (av[0] && **av == '#'))
 			continue;
 		bi_status = built_in_check(buf, path, av, argv, envp, status, line_num);
 		if (bi_status == 0)

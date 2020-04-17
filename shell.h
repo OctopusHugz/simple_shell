@@ -56,4 +56,6 @@ int exit_parser(char *e_status);
 
 int _atoi(char *s);
 
+char *get_var(char *var);
+
 #endif /* SHELL_H */
