@@ -17,7 +17,7 @@ Simple_shell can be run both in interactive mode and non-interactive mode. Inter
 
 `$ ls` - interactive mode\
 `echo "ls" | ./hsh` - non-interactive mode\
-`echo "ls" | /bin/hsh` - non-interactive mode\
+`echo "ls" | /bin/hsh` - non-interactive mode
 
 ## **Exit Status**
 
