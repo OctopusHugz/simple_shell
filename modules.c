@@ -27,10 +27,12 @@ char *make_av(char *av[], char *str)
 				i++;
 			str[i] = '\0';
 		}
-		if (*ptr)
+		if (*ptr && *ptr != '#')
 			av[j] = ptr;
 		if (j == 0 && (_strncmp(ptr, "env", 3) != 0))
 			path_ptr = find_right_path(ptr);
+		if (*ptr == '#')
+			break;
 	}
 	av[j] = NULL;
 	return (path_ptr);
