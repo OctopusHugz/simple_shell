@@ -45,11 +45,8 @@ int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
 				   char *envp[], int status, int line_num);
 
 void print_number(int n);
-
 int print_error(char *path, char *argv[], int line_num, char *av[]);
-
 char *access_check(char *path);
-
 int slash_check(char *command);
 int exit_parser(char *e_status);
 int _atoi(char *s);
