@@ -51,11 +51,8 @@ int print_error(char *path, char *argv[], int line_num, char *av[]);
 char *access_check(char *path);
 
 int slash_check(char *command);
-
 int exit_parser(char *e_status);
-
 int _atoi(char *s);
-
 char *get_var(char *var);
 
 #endif /* SHELL_H */
