@@ -2,24 +2,24 @@
 
 /**
  * gettokens - turn a line input into a token array (argv)
- * @token_arr: pointer to array to be filled
+ * @tokens: pointer to array to be filled
  * @line: line to be turned into arguments
  * Return: number of tokens
  **/
-size_t gettokens(char *token_arr[], char *line)
+size_t gettokens(char *tokens[], char *line)
 {
 	size_t i = 0;
 	char *delims = "#\t \n";
 	char *token = NULL;
 
 	for (i = 0; i < 4096; i++)
-		token_arr[i] = 0;
+		tokens[i] = 0;
 
 	token = str_to_token(line, delims);
 
 	for (i = 0; token != NULL; i++)
 	{
-		token_arr[i] = token;
+		tokens[i] = token;
 		token = str_to_token(NULL, delims);
 	}
 
@@ -77,7 +77,7 @@ char *str_to_token(char *new_str, const char *delims)
  * @path_plus_program: where full path name is stored
  * Return: string of full path name of program
  **/
-char *getpath(char *program, char **path_plus_program)
+void getpath(char **path_plus_program, char *program)
 {
 	char *path, *all_paths;
 	int size;
@@ -85,7 +85,7 @@ char *getpath(char *program, char **path_plus_program)
 
 	all_paths = _strdup(NULL, _getenv("PATH"));
 	if (all_paths == NULL && *program != '/')
-		return (NULL);
+		return;
 	path = str_to_token(all_paths, ":");
 	size = _strlen(all_paths) + _strlen(program) + 2;
 	free(*path_plus_program);
@@ -94,7 +94,7 @@ char *getpath(char *program, char **path_plus_program)
 	if (*path_plus_program == NULL)
 	{
 		perror("malloc");
-		return (NULL);
+		return;
 	}
 
 	while (path != NULL)
@@ -105,15 +105,11 @@ char *getpath(char *program, char **path_plus_program)
 		if (stat(*path_plus_program, &st) == 0)
 		{
 			free(all_paths);
-			return (*path_plus_program);
+			return;
 		}
 		path = str_to_token(NULL, ":");
 	}
 
 	free(all_paths);
-
-	if (stat(program, &st) == 0)
-		return (_strdup(NULL, program));
-
-	return (NULL);
+	*path_plus_program = _strdup(*path_plus_program, program);
 }

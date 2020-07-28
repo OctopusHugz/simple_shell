@@ -8,7 +8,7 @@
  **/
 int main(int argc __attribute__((unused)), char *argv[])
 {
-	char *line = NULL, *program = NULL, *path = NULL, *token_arr[4096];
+	char *line = NULL, *program = NULL, *path = NULL, *tokens[4096];
 	char *prompt = isatty(STDIN_FILENO) ? "$ " : "";
 	int line_num = 1, status = 0;
 	size_t line_size = 0;
@@ -16,15 +16,15 @@ int main(int argc __attribute__((unused)), char *argv[])
 	print(prompt);
 	while (getline(&line, &line_size, stdin) != -1)
 	{
-		if (gettokens(token_arr, line))
+		if (gettokens(tokens, line))
 		{
-			program = token_arr[0];
+			program = tokens[0];
 			if (print_env(program))
 				continue;
 			if (key_match(program, "exit"))
 				break;
-			getpath(program, &path);
-			status = fork_and_execute(path, token_arr, environ);
+			getpath(&path, program);
+			status = fork_and_execute(path, tokens, environ);
 			if (status == -1)
 			{
 				status = print_error_message(argv[0], line_num, program);
@@ -42,11 +42,11 @@ int main(int argc __attribute__((unused)), char *argv[])
 /**
  * fork_and_execute - fork and execute
  * @program: program
- * @token_arr: token array
+ * @tokens: token array
  * @envp: environment
  * Return: status
  **/
-int fork_and_execute(char *program, char **token_arr, char **envp)
+int fork_and_execute(char *program, char **tokens, char **envp)
 {
 	int status = 0;
 	pid_t child_pid;
@@ -61,7 +61,7 @@ int fork_and_execute(char *program, char **token_arr, char **envp)
 		return (WEXITSTATUS(status));
 	}
 
-	return (execve(program, token_arr, envp));
+	return (execve(program, tokens, envp));
 }
 
 /**

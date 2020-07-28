@@ -18,7 +18,7 @@ char *_strdup(char *dest, char *src);
 char *_strcat(char *dest, char *src);
 char *_strncpy(char *dest, char *src, int n);
 char *str_to_token(char *new_str, const char *delims);
-char *getpath(char *program, char **path_plus_program);
+void getpath(char **path_plus_program, char *program);
 size_t gettokens(char *token_arr[], char *line);
 int print_error_message(char *shell_name, int line_num, char *program);
 void stderr_int_print(int n);
