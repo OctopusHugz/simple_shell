@@ -1,16 +1,29 @@
 #include "shell.h"
+#define PROMPT "$ "
+#define getprompt() (isatty(STDIN_FILENO) ? PROMPT : "")
 
 /**
- * gettokens - turn a line input into a token array (argv)
+ * gettokens - read stdin, tokenize it, store in tokens
  * @tokens: pointer to array to be filled
- * @line: line to be turned into arguments
+ * @num_of_tokens: pointer to store size of tokens array
  * Return: number of tokens
  **/
-size_t gettokens(char *tokens[], char *line)
+int gettokens(char *tokens[], int *num_of_tokens)
 {
-	size_t i = 0;
+	int i = 0;
 	char *delims = "#\t \n";
 	char *token = NULL;
+	char *prompt = getprompt();
+	static size_t line_size;
+	static char *line;
+
+	print(prompt);
+
+	if (getline(&line, &line_size, stdin) == -1)
+	{
+		free(line);
+		return (0);
+	}
 
 	for (i = 0; i < 4096; i++)
 		tokens[i] = 0;
@@ -23,7 +36,8 @@ size_t gettokens(char *tokens[], char *line)
 		token = str_to_token(NULL, delims);
 	}
 
-	return (i);
+	*num_of_tokens = i;
+	return (1);
 }
 
 /**

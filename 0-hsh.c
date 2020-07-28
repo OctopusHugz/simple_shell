@@ -8,15 +8,13 @@
  **/
 int main(int argc __attribute__((unused)), char *argv[])
 {
-	char *line = NULL, *program = NULL, *path = NULL, *tokens[4096];
-	char *prompt = isatty(STDIN_FILENO) ? "$ " : "";
-	int line_num = 1, status = 0;
-	size_t line_size = 0;
+	char *program = NULL, *path = NULL, *tokens[4096];
+	int line_number = 1, status = 0, num_of_tokens = 0;
 
-	print(prompt);
-	while (getline(&line, &line_size, stdin) != -1)
+	while (gettokens(tokens, &num_of_tokens))
 	{
-		if (gettokens(tokens, line))
+		line_number++;
+		if (num_of_tokens != 0)
 		{
 			program = tokens[0];
 			if (print_env(program))
@@ -27,14 +25,11 @@ int main(int argc __attribute__((unused)), char *argv[])
 			status = fork_and_execute(path, tokens, environ);
 			if (status == -1)
 			{
-				status = print_error_message(argv[0], line_num, program);
+				status = print_error_message(argv[0], line_number, program);
 				break;
 			}
 		}
-		print(prompt);
-		line_num += 1;
 	}
-	free(line);
 	free(path);
 	exit(status);
 }
