@@ -6,16 +6,14 @@
  * @argv: array of strings containing arguments to main
  * Return: exit status
  **/
-int main(int argc, char *argv[])
+int main(int argc __attribute__((unused)), char *argv[])
 {
 	char *line = NULL, *program = NULL, *path = NULL, *token_arr[4096];
 	char *prompt = isatty(STDIN_FILENO) ? "$ " : "";
 	int line_num = 1, status = 0;
 	size_t line_size = 0;
 
-	(void)argc;
 	print(prompt);
-
 	while (getline(&line, &line_size, stdin) != -1)
 	{
 		if (gettokens(token_arr, line))

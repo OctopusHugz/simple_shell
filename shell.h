@@ -1,59 +1,30 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <unistd.h>
-#include <signal.h>
-#include <limits.h>
-#include <errno.h>
-
-typedef void (*sighandler_t)(int);
 
 extern char **environ;
 
-char *_getenv(char *name);
-
-char *find_right_path(char *command);
-
-char *make_av(char *av[], char *str);
-
-void print_env(char *envp[]);
-
-int _strncmp(char *s1, char *s2, int n);
-
-char *_strncpy(char *dest, char *src, int n);
-
-char *_strcat(char *dest, char *src);
-
+char *_getenv(char *key);
+int key_match(char *key, char *string);
 size_t _strlen(char *s);
-
-int _putchar(char c);
-
-void _puts(char *str);
-
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-void sigint_handler(int signo);
-int fork_exec(char *buf, char *path, char *av[4096], char *envp[]);
-
-int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
-				   char *envp[], int status, int line_num);
-
-void print_number(int n);
-int print_error(char *path, char *argv[], int line_num, char *av[]);
-char *access_check(char *path);
-int slash_check(char *command);
-int exit_parser(char *e_status);
-int _atoi(char *s);
-char *get_var(char *var);
-
-int err_putchar(char c);
-
-void err_puts(char *str);
-
-void err_print_number(int n);
+char *_strdup(char *dest, char *src);
+char *_strcat(char *dest, char *src);
+char *_strncpy(char *dest, char *src, int n);
+char *str_to_token(char *new_str, const char *delims);
+char *getpath(char *program, char **path_plus_program);
+size_t gettokens(char *token_arr[], char *line);
+int print_error_message(char *shell_name, int line_num, char *program);
+void stderr_int_print(int n);
+void stderr_print(char *str);
+int print_env(char *program);
+void print(char *str);
+int fork_and_execute(char *command, char **token_arr, char **envp);
 
 #endif /* SHELL_H */
