@@ -12,14 +12,15 @@ int print_error_message(char *shell_name, int line_num, char *program)
 	int status;
 	char *error_message;
 
-	if (errno == 14)
+	if (errno == 2)
 	{
 		error_message = ": not found\n";
 		status = 127;
 	}
 	else
 	{
-		error_message = ": Placeholder!\n";
+		printf("errno: %d\n", errno);
+		error_message = ": error unknown\n";
 		status = 126;
 	}
 

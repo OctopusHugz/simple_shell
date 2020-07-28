@@ -1,17 +1,25 @@
 #include "shell.h"
 
 /**
- * print_env - prints environment
+ * print_env - prints environment if program is env
+ * @program: program name. must be env.
+ * Return: 1 if env printed | 0 if not
  **/
-void print_env(void)
+int print_env(char *program)
 {
 	int i = 0;
 
-	for (; environ[i]; i++)
+	if (key_match(program, "env"))
 	{
-		print(environ[i]);
-		print("\n");
+		for (; environ[i]; i++)
+		{
+			print(environ[i]);
+			print("\n");
+		}
+		return (1);
 	}
+
+	return (0);
 }
 
 /**

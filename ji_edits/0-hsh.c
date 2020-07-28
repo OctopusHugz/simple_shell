@@ -4,51 +4,42 @@
  * main - run UNIX simple shell command interpreter
  * @argc: number of arguments provided to main (void)
  * @argv: array of strings containing arguments to main
- * @envp: array of strings containing environment variables
  * Return: exit status
  **/
-int main(int argc, char *argv[], char *envp[])
+int main(int argc, char *argv[])
 {
-	char *line = NULL, *program = NULL, *program_path = NULL, *token_arr[4096];
-	int line_num = 0, status = 0, interactive = isatty(STDIN_FILENO);
+	char *line = NULL, *program = NULL, *path = NULL, *token_arr[4096];
+	char *prompt = isatty(STDIN_FILENO) ? "$ " : "";
+	int line_num = 1, status = 0;
 	size_t line_size = 0;
-	/*int i;*/
+
 	(void)argc;
-	(void)envp;
+	print(prompt);
 
-	while (1)
+	while (getline(&line, &line_size, stdin) != -1)
 	{
+		if (gettokens(token_arr, line))
+		{
+			program = token_arr[0];
+			if (print_env(program))
+				continue;
+			if (key_match(program, "exit"))
+				break;
+			getpath(program, &path);
+			status = fork_and_execute(path, token_arr, environ);
+			if (status == -1)
+			{
+				status = print_error_message(argv[0], line_num, program);
+				break;
+			}
+		}
+		print(prompt);
 		line_num += 1;
-
-		if (interactive)
-			print("$ ");
-		if (getline(&line, &line_size, stdin) == -1)
-			break;
-		if (gettokens(token_arr, line) == 0)
-			continue;
-		program = token_arr[0];
-		if (key_match(program, "env"))
-		{
-			print_env();
-			continue;
-		}
-		if (key_match(program, "exit"))
-			break;
-		free(program_path);
-		program_path = get_program_path(program);
-		status = fork_and_execute(program_path, token_arr, envp);
-		if (status == -1)
-		{
-			status = print_error_message(argv[0], line_num, program);
-			break;
-		}
 	}
 	free(line);
-	free(program_path);
+	free(path);
 	exit(status);
 }
-
-
 
 /**
  * fork_and_execute - fork and execute

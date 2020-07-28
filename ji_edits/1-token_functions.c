@@ -45,15 +45,10 @@ char *str_to_token(char *new_str, const char *delims)
 		return (NULL);
 
 	while (delims[i] != '\0')
-	{
 		if (*string != delims[i])
-		{
 			i++;
-			continue;
-		}
-		string++;
-		i = 0;
-	}
+		else
+			string++, i = 0;
 
 	if (*string == '\0')
 		return (NULL);
@@ -77,13 +72,14 @@ char *str_to_token(char *new_str, const char *delims)
 }
 
 /**
- * get_program_path - finds and returns full path name of program
+ * getpath - finds and returns full path name of program
  * @program: program name
+ * @path_plus_program: where full path name is stored
  * Return: string of full path name of program
  **/
-char *get_program_path(char *program)
+char *getpath(char *program, char **path_plus_program)
 {
-	char *path, *all_paths, *path_plus_program;
+	char *path, *all_paths;
 	int size;
 	struct stat st;
 
@@ -92,9 +88,10 @@ char *get_program_path(char *program)
 		return (NULL);
 	path = str_to_token(all_paths, ":");
 	size = _strlen(all_paths) + _strlen(program) + 2;
-	path_plus_program = malloc(size);
+	free(*path_plus_program);
+	*path_plus_program = malloc(size);
 
-	if (path_plus_program == NULL)
+	if (*path_plus_program == NULL)
 	{
 		perror("malloc");
 		return (NULL);
@@ -102,20 +99,18 @@ char *get_program_path(char *program)
 
 	while (path != NULL)
 	{
-		_strncpy(path_plus_program, path, size);
-		_strcat(path_plus_program, "/");
-		_strcat(path_plus_program, program);
-		/*printf("%s\n", path_plus_program);*/
-		if (stat(path_plus_program, &st) == 0)
+		_strncpy(*path_plus_program, path, size);
+		_strcat(*path_plus_program, "/");
+		_strcat(*path_plus_program, program);
+		if (stat(*path_plus_program, &st) == 0)
 		{
 			free(all_paths);
-			return (path_plus_program);
+			return (*path_plus_program);
 		}
 		path = str_to_token(NULL, ":");
 	}
 
 	free(all_paths);
-	free(path_plus_program);
 
 	if (stat(program, &st) == 0)
 		return (_strdup(NULL, program));
