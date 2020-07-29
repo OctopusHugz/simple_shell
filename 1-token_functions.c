@@ -10,12 +10,10 @@
  **/
 int gettokens(char *tokens[], int *num_of_tokens)
 {
-	int i = 0;
-	char *delims = "#\t \n";
-	char *token = NULL;
-	char *prompt = getprompt();
+	char *delims = "#\t \n", *token = NULL, *prompt = getprompt();
 	static size_t line_size;
 	static char *line;
+	int i = 0;
 
 	if (tokens != NULL)
 		print(prompt);

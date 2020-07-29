@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
+#define ILLEGAL_EXIT_STATUS 666
+
 extern char **environ;
 
 /**

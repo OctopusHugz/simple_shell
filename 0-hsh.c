@@ -10,33 +10,29 @@ int main(int argc __attribute__((unused)), char *argv[])
 {
 	int line_number = 0, status = 0, num_of_tokens = 0;
 	char *tokens[4096];
-	int check;
 
 	while (gettokens(tokens, &num_of_tokens))
 	{
 		line_number++;
-		if (num_of_tokens)
+		if (num_of_tokens > 0)
 		{
-			check = builtin_exec(tokens, num_of_tokens, &status);
-			if (check)
+			if (builtin_exec(tokens, num_of_tokens, &status) != 0)
 			{
-				if (status == 666)
+				if (status == ILLEGAL_EXIT_STATUS)
 					status = print_error_message(argv[0], line_number, tokens);
+				continue;
 			}
-			else
-			{
-				status = fork_and_execute(tokens);
 
-				if (status == -1)
-				{
-					status = print_error_message(argv[0], line_number, tokens);
-					gettokens(NULL, NULL);
-					exit(status);
-				}
+			status = fork_and_execute(tokens);
+
+			if (status == -1)
+			{
+				status = print_error_message(argv[0], line_number, tokens);
+				gettokens(NULL, NULL);
 			}
 		}
 	}
-	return (0);
+	exit(status);
 }
 
 /**
@@ -63,8 +59,8 @@ int exit_check(char *tokens[], int num_of_tokens, int *status)
 	for (i = 0; exit_status[i]; i++)
 		if (exit_status[i] < '0' || exit_status[i] > '9')
 		{
-			*status = 666;
-			return (-1);
+			*status = ILLEGAL_EXIT_STATUS;
+			return (1);
 		}
 
 	*status = atoi(exit_status);
@@ -84,13 +80,11 @@ int builtin_exec(char *tokens[], int num_of_tokens, int *status)
 	builtins_t builtins[] = {{"env", print_env}};
 	int i, num_of_builtins = sizeof(builtins) / sizeof(builtins_t);
 	char *program = tokens[0];
-	int check;
 
-	check = exit_check(tokens, num_of_tokens, status);
-	if (check)
+	if (exit_check(tokens, num_of_tokens, status) != 0)
 	{
-		if (check == -1)
-			return (-1);
+		if (*status == ILLEGAL_EXIT_STATUS)
+			return (1);
 		gettokens(NULL, NULL);
 		exit(*status);
 	}
