@@ -21,6 +21,7 @@ int gettokens(char *tokens[], int *num_of_tokens)
 	if (tokens == NULL || getline(&line, &line_size, stdin) == -1)
 	{
 		free(line);
+		line = NULL;
 		return (0);
 	}
 

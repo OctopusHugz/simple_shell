@@ -20,14 +20,13 @@ int print_error_message(char *shell_name, int line_num, char *tokens[])
 		error_message_2 = tokens[1];
 		status = 2;
 	}
-	else if (errno == 2)
+	else if (errno == ENOENT || errno == EFAULT)
 	{
 		error_message = ": not found";
 		status = 127;
 	}
 	else
 	{
-		printf("errno: %d\n", errno);
 		error_message = ": error unknown";
 		status = 126;
 	}
