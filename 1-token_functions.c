@@ -94,7 +94,7 @@ char *str_to_token(char *new_str, const char *delims)
 void getpath(char **path_plus_program, char *program)
 {
 	char *path, *all_paths;
-	int size;
+	int i, size;
 	struct stat st;
 
 	all_paths = _strdup(NULL, _getenv("PATH"));
@@ -104,6 +104,8 @@ void getpath(char **path_plus_program, char *program)
 	size = _strlen(all_paths) + _strlen(program) + 2;
 	free(*path_plus_program);
 	*path_plus_program = malloc(size);
+	for (i = 0; i < size; i++)
+		(*path_plus_program)[i] = 0;
 
 	if (*path_plus_program == NULL)
 	{

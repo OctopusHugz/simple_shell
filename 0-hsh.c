@@ -103,9 +103,9 @@ int builtin_exec(char *tokens[], int num_of_tokens, int *status)
  **/
 int fork_and_execute(char **tokens)
 {
+	char *path = NULL, *program = tokens[0];
 	int status = 0;
 	pid_t child_pid;
-	char *path = NULL, *program = tokens[0];
 
 	child_pid = fork();
 
