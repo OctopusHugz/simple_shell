@@ -2,24 +2,21 @@
 
 /**
  * print_env - prints environment if program is env
- * @program: program name. must be env.
+ * @tokens: unused attribute
  * Return: 1 if env printed | 0 if not
  **/
-int print_env(char *program)
+int print_env(char *tokens[])
 {
-	int i = 0;
+	int i;
 
-	if (key_match(program, "env"))
+	(void)tokens;
+
+	for (i = 0; environ[i]; i++)
 	{
-		for (; environ[i]; i++)
-		{
-			print(environ[i]);
-			print("\n");
-		}
-		return (1);
+		print(environ[i]);
+		print("\n");
 	}
-
-	return (0);
+	return (1);
 }
 
 /**

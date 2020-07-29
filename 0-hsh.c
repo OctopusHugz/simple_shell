@@ -8,43 +8,110 @@
  **/
 int main(int argc __attribute__((unused)), char *argv[])
 {
-	char *program = NULL, *path = NULL, *tokens[4096];
-	int line_number = 1, status = 0, num_of_tokens = 0;
+	int line_number = 0, status = 0, num_of_tokens = 0;
+	char *tokens[4096];
+	int check;
 
 	while (gettokens(tokens, &num_of_tokens))
 	{
 		line_number++;
-		if (num_of_tokens != 0)
+		if (num_of_tokens)
 		{
-			program = tokens[0];
-			if (print_env(program))
-				continue;
-			if (key_match(program, "exit"))
-				break;
-			getpath(&path, program);
-			status = fork_and_execute(path, tokens, environ);
-			if (status == -1)
+			check = builtin_exec(tokens, num_of_tokens, &status);
+			if (check)
 			{
-				status = print_error_message(argv[0], line_number, program);
-				break;
+				if (status == 666)
+					status = print_error_message(argv[0], line_number, tokens);
+			}
+			else
+			{
+				status = fork_and_execute(tokens);
+
+				if (status == -1)
+				{
+					status = print_error_message(argv[0], line_number, tokens);
+					gettokens(NULL, NULL);
+					exit(status);
+				}
 			}
 		}
 	}
-	free(path);
-	exit(status);
+	return (0);
+}
+
+/**
+ * exit_check - if exit, exit
+ * @tokens: tokens
+ * @num_of_tokens: num of tokens
+ * @status: status
+ * Return: -1 if error on exit | 0 if no need to exit
+ **/
+int exit_check(char *tokens[], int num_of_tokens, int *status)
+{
+	char *program = tokens[0];
+	char *exit_status;
+	int i;
+
+	if (key_match(program, "exit") == 0)
+		return (0);
+
+	if (num_of_tokens == 1)
+		return (1);
+
+	exit_status = tokens[1];
+
+	for (i = 0; exit_status[i]; i++)
+		if (exit_status[i] < '0' || exit_status[i] > '9')
+		{
+			*status = 666;
+			return (-1);
+		}
+
+	*status = atoi(exit_status);
+
+	return (1);
+}
+
+/**
+ * builtin_exec - executes builtins if program is a builtin
+ * @tokens: tokens
+ * @num_of_tokens: number of tokens
+ * @status: pointer to status variable
+ * Return: 1 if builtin is executed | 0 if not
+ **/
+int builtin_exec(char *tokens[], int num_of_tokens, int *status)
+{
+	builtins_t builtins[] = {{"env", print_env}};
+	int i, num_of_builtins = sizeof(builtins) / sizeof(builtins_t);
+	char *program = tokens[0];
+	int check;
+
+	check = exit_check(tokens, num_of_tokens, status);
+	if (check)
+	{
+		if (check == -1)
+			return (-1);
+		gettokens(NULL, NULL);
+		exit(*status);
+	}
+
+	for (i = 0; i < num_of_builtins; i++)
+		if (key_match(program, builtins[i].name))
+			return (builtins[i].func(tokens));
+
+	return (0);
 }
 
 /**
  * fork_and_execute - fork and execute
- * @program: program
  * @tokens: token array
- * @envp: environment
  * Return: status
  **/
-int fork_and_execute(char *program, char **tokens, char **envp)
+int fork_and_execute(char **tokens)
 {
 	int status = 0;
 	pid_t child_pid;
+	char *path = NULL, *program = tokens[0];
 
 	child_pid = fork();
 
@@ -56,7 +123,10 @@ int fork_and_execute(char *program, char **tokens, char **envp)
 		return (WEXITSTATUS(status));
 	}
 
-	return (execve(program, tokens, envp));
+	getpath(&path, program);
+	status = execve(path, tokens, environ);
+	free(path);
+	return (status);
 }
 
 /**

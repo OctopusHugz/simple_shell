@@ -4,23 +4,31 @@
  * print_error_message - prints error
  * @shell_name: shell name
  * @line_num: line number of error
- * @program: program name
+ * @tokens: array of tokens
  * Return: status
  **/
-int print_error_message(char *shell_name, int line_num, char *program)
+int print_error_message(char *shell_name, int line_num, char *tokens[])
 {
 	int status;
 	char *error_message;
+	char *error_message_2 = NULL;
+	char *program = tokens[0];
 
-	if (errno == 2)
+	if (key_match(program, "exit"))
 	{
-		error_message = ": not found\n";
+		error_message = ": Illegal number: ";
+		error_message_2 = tokens[1];
+		status = 2;
+	}
+	else if (errno == 2)
+	{
+		error_message = ": not found";
 		status = 127;
 	}
 	else
 	{
 		printf("errno: %d\n", errno);
-		error_message = ": error unknown\n";
+		error_message = ": error unknown";
 		status = 126;
 	}
 
@@ -30,6 +38,9 @@ int print_error_message(char *shell_name, int line_num, char *program)
 	stderr_print(": ");
 	stderr_print(program);
 	stderr_print(error_message);
+	if (error_message_2)
+		stderr_print(error_message_2);
+	stderr_print("\n");
 
 	return (status);
 }
