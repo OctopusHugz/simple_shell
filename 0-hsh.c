@@ -35,6 +35,7 @@ int main(int argc __attribute__((unused)), char *argv[])
 			}
 		}
 	}
+	free(path);
 	exit(status);
 }
 
@@ -114,7 +115,6 @@ int fork_and_execute(char *path, char **tokens)
 
 	if (child_pid != 0)
 	{
-		free(path);
 		if (child_pid == -1 || wait(&status) == -1)
 			return (-1);
 
@@ -122,7 +122,6 @@ int fork_and_execute(char *path, char **tokens)
 	}
 
 	status = execve(path, tokens, environ);
-	free(path);
 	return (status);
 }
 
