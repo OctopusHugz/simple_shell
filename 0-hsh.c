@@ -107,6 +107,14 @@ int fork_and_execute(char **tokens)
 	int status = 0;
 	pid_t child_pid;
 
+	getpath(&path, program);
+
+	if (path == NULL)
+	{
+		errno = ENOENT;
+		return (-1);
+	}
+
 	child_pid = fork();
 
 	if (child_pid != 0)
@@ -117,14 +125,7 @@ int fork_and_execute(char **tokens)
 		return (WEXITSTATUS(status));
 	}
 
-	getpath(&path, program);
-	if (path == NULL)
-	{
-		errno = ENOENT;
-		status = -1;
-	}
-	else
-		status = execve(path, tokens, environ);
+	status = execve(path, tokens, environ);
 	free(path);
 	return (status);
 }
