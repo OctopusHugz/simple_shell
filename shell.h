@@ -32,13 +32,13 @@ char *_strdup(char *dest, char *src);
 char *_strcat(char *dest, char *src);
 char *_strncpy(char *dest, char *src, int n);
 char *str_to_token(char *new_str, const char *delims);
-void getpath(char **path_plus_program, char *program);
+char *getpath(char **path_plus_program, char *program);
 void stderr_int_print(int n);
 void stderr_print(char *str);
 
 int print_env(char *tokens[]);
 void print(char *str);
-int fork_and_execute(char **tokens);
+int fork_and_execute(char *path, char **tokens);
 int exit_check(char *tokens[], int num_of_tokens, int *status);
 int print_error_message(char *shell_name, int line_num, char *tokens[]);
 int builtin_exec(char *tokens[], int num_of_tokens, int *status);
