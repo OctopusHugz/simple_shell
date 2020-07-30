@@ -101,7 +101,7 @@ void getpath(char **path_plus_program, char *program)
 	if (all_paths == NULL && *program != '/')
 		return;
 	path = str_to_token(all_paths, ":");
-	size = _strlen(all_paths) + _strlen(program) + 2;
+	size = _strlen(all_paths) + _strlen(program) + 3;
 	free(*path_plus_program);
 	*path_plus_program = malloc(size);
 	for (i = 0; i < size; i++)
@@ -128,4 +128,8 @@ void getpath(char **path_plus_program, char *program)
 
 	free(all_paths);
 	*path_plus_program = _strdup(*path_plus_program, program);
+	if (stat(*path_plus_program, &st) == 0)
+		return;
+	free(*path_plus_program);
+	*path_plus_program = NULL;
 }

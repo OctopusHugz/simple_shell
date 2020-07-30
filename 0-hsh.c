@@ -118,7 +118,13 @@ int fork_and_execute(char **tokens)
 	}
 
 	getpath(&path, program);
-	status = execve(path, tokens, environ);
+	if (path == NULL)
+	{
+		errno = ENOENT;
+		status = -1;
+	}
+	else
+		status = execve(path, tokens, environ);
 	free(path);
 	return (status);
 }
