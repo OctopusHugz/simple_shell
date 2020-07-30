@@ -9,7 +9,7 @@
 int main(int argc __attribute__((unused)), char *argv[])
 {
 	int line_number = 0, status = 0, num_of_tokens = 0;
-	char *tokens[4096], *path = NULL;
+	char *tokens[4096];
 
 	while (gettokens(tokens, &num_of_tokens))
 	{
@@ -23,15 +23,12 @@ int main(int argc __attribute__((unused)), char *argv[])
 				continue;
 			}
 
-			if (getpath(&path, tokens[0]))
-			{
-				status = fork_and_execute(path, tokens);
-			}
-			else
+			status = fork_and_execute(tokens);
+
+			if (status == -1)
 			{
 				status = print_error_message(argv[0], line_number, tokens);
 				gettokens(NULL, NULL);
-				continue;
 			}
 		}
 	}
@@ -101,12 +98,12 @@ int builtin_exec(char *tokens[], int num_of_tokens, int *status)
 
 /**
  * fork_and_execute - fork and execute
- * @path: program path
  * @tokens: token array
  * Return: status
  **/
-int fork_and_execute(char *path, char **tokens)
+int fork_and_execute(char **tokens)
 {
+	char *path = NULL, *program = tokens[0];
 	int status = 0;
 	pid_t child_pid;
 
@@ -114,14 +111,20 @@ int fork_and_execute(char *path, char **tokens)
 
 	if (child_pid != 0)
 	{
-		free(path);
 		if (child_pid == -1 || wait(&status) == -1)
 			return (-1);
 
 		return (WEXITSTATUS(status));
 	}
 
-	status = execve(path, tokens, environ);
+	getpath(&path, program);
+	if (path == NULL)
+	{
+		errno = ENOENT;
+		status = -1;
+	}
+	else
+		status = execve(path, tokens, environ);
 	free(path);
 	return (status);
 }

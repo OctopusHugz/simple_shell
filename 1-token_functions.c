@@ -91,14 +91,15 @@ char *str_to_token(char *new_str, const char *delims)
  * @path_plus_program: where full path name is stored
  * Return: string of full path name of program
  **/
-char *getpath(char **path_plus_program, char *program)
+void getpath(char **path_plus_program, char *program)
 {
-	char *path, *all_paths = _strdup(NULL, _getenv("PATH"));
+	char *path, *all_paths;
 	int i, size;
 	struct stat st;
 
+	all_paths = _strdup(NULL, _getenv("PATH"));
 	if (all_paths == NULL && *program != '/')
-		return (NULL);
+		return;
 	path = str_to_token(all_paths, ":");
 	size = _strlen(all_paths) + _strlen(program) + 3;
 	free(*path_plus_program);
@@ -109,7 +110,7 @@ char *getpath(char **path_plus_program, char *program)
 	if (*path_plus_program == NULL)
 	{
 		perror("malloc");
-		return (NULL);
+		return;
 	}
 
 	while (path != NULL)
@@ -120,7 +121,7 @@ char *getpath(char **path_plus_program, char *program)
 		if (stat(*path_plus_program, &st) == 0)
 		{
 			free(all_paths);
-			return (*path_plus_program);
+			return;
 		}
 		path = str_to_token(NULL, ":");
 	}
@@ -128,9 +129,7 @@ char *getpath(char **path_plus_program, char *program)
 	free(all_paths);
 	*path_plus_program = _strdup(*path_plus_program, program);
 	if (stat(*path_plus_program, &st) == 0)
-		return (*path_plus_program);
+		return;
 	free(*path_plus_program);
 	*path_plus_program = NULL;
-	errno = EFAULT;
-	return (NULL);
 }
