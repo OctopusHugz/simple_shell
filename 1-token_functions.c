@@ -18,7 +18,7 @@ int gettokens(char *tokens[], int *num_of_tokens)
 	if (tokens != NULL)
 		print(prompt);
 
-	if (tokens == NULL || getline(&line, &line_size, stdin) == -1)
+	if (tokens == NULL || _getline(&line, &line_size, stdin) == -1)
 	{
 		free(line);
 		line = NULL;
