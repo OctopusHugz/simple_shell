@@ -89,6 +89,7 @@ int exit_parser(char *e_status)
  *
  * Return: integer value of s
  */
+
 int _atoi(char *s)
 {
 	unsigned int num = 0, i = 0, negs = 0;

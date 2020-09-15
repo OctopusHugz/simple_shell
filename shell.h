@@ -1,50 +1,67 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
+#include <limits.h>
+#include <errno.h>
 
-#define ILLEGAL_EXIT_STATUS 666
-#define MEM_CHUNK 4096
+typedef void (*sighandler_t)(int);
 
 extern char **environ;
 
-/**
- * struct builtins_s - matches a built-in name with its function
- * @name: built-in name
- * @func: built-in function
- **/
-typedef struct builtins_s
-{
-	char *name;
-	int (*func)(char *tokens[]);
-} builtins_t;
+char *_getenv(char *name);
 
-int gettokens(char *tokens[], int *tokens_size);
-char *get_line_end(char **line, ssize_t *count, size_t *size, int fd);
-char *_getenv(char *key);
-int key_match(char *key, char *string);
-size_t _strlen(char *s);
-char *_strdup(char *dest, char *src);
-char *_strcat(char *dest, char *src);
-char *_strchr(char *str, int chr);
+char *find_right_path(char *command);
+
+char *make_av(char *av[], char *str);
+
+void print_env(char *envp[]);
+
+int _strncmp(char *s1, char *s2, int n);
+
 char *_strncpy(char *dest, char *src, int n);
-char *str_to_token(char *new_str, const char *delims);
-void getpath(char **path_plus_program, char *program);
-void stderr_int_print(int n);
-void stderr_print(char *str);
 
-int print_env(char *tokens[]);
-void print(char *str);
-int fork_and_execute(char **tokens);
-int exit_check(char *tokens[], int num_of_tokens, int *status);
-int print_error_message(char *shell_name, int line_num, char *tokens[]);
-int builtin_exec(char *tokens[], int num_of_tokens, int *status);
-ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
+char *_strcat(char *dest, char *src);
 
-#endif
+size_t _strlen(char *s);
+
+int _putchar(char c);
+
+void _puts(char *str);
+
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+
+void sigint_handler(int signo);
+
+int fork_exec(char *buf, char *path, char *av[4096], char *envp[]);
+
+int built_in_check(char *buf, char *path, char *av[4096], char *argv[],
+				   char *envp[], int status, int line_num);
+
+void print_number(int n);
+
+int print_error(char *path, char *argv[], int line_num, char *av[]);
+
+char *access_check(char *path);
+
+int slash_check(char *command);
+
+int exit_parser(char *e_status);
+
+int _atoi(char *s);
+
+char *get_var(char *var);
+
+int err_putchar(char c);
+
+void err_puts(char *str);
+
+void err_print_number(int n);
+
+#endif /* SHELL_H */

@@ -1,4 +1,5 @@
 #include "shell.h"
+
 /**
  * _realloc - reallocates memory using malloc and free
  * @ptr: void pointer to previously allocated memory
@@ -6,6 +7,7 @@
  * @new_size: size of newly allocated memory
  * Return: pointer to newly allocated memory
  */
+
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
 	unsigned int u;
